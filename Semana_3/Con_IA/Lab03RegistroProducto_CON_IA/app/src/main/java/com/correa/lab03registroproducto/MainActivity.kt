@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,23 +51,23 @@ fun PantallaRegistro(
     modifier: Modifier = Modifier
 ) {
 
-    var nombre by remember {
+    var nombre by rememberSaveable {
         mutableStateOf("")
     }
 
-    var precio by remember {
+    var precio by rememberSaveable {
         mutableStateOf("")
     }
 
-    var cantidad by remember {
+    var cantidad by rememberSaveable {
         mutableStateOf("")
     }
 
-    var mostrarResumen by remember {
+    var mostrarResumen by rememberSaveable {
         mutableStateOf(false)
     }
 
-    var mensajeError by remember {
+    var mensajeError by rememberSaveable {
         mutableStateOf("")
     }
 
