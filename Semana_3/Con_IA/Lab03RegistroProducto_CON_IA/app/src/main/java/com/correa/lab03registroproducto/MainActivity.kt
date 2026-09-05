@@ -131,16 +131,35 @@ fun PantallaRegistro(
         Button(
             onClick = {
 
-                if (
+                val precioValido = precio.toDoubleOrNull()
+                val cantidadValida = cantidad.toIntOrNull()
+
+                when {
                     nombre.isBlank() ||
-                    precio.isBlank() ||
-                    cantidad.isBlank()
-                ) {
-                    mostrarResumen = false
-                    mensajeError = "Completa todos los campos"
-                } else {
-                    mensajeError = ""
-                    mostrarResumen = true
+                            precio.isBlank() ||
+                            cantidad.isBlank() -> {
+
+                        mostrarResumen = false
+                        mensajeError = "Completa todos los campos"
+                    }
+
+                    precioValido == null || precioValido < 0 -> {
+
+                        mostrarResumen = false
+                        mensajeError = "Ingresa un precio válido"
+                    }
+
+                    cantidadValida == null || cantidadValida < 0 -> {
+
+                        mostrarResumen = false
+                        mensajeError = "Ingresa una cantidad válida"
+                    }
+
+                    else -> {
+
+                        mensajeError = ""
+                        mostrarResumen = true
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
