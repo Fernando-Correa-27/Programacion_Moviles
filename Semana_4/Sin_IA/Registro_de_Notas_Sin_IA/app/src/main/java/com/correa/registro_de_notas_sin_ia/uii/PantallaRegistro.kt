@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,12 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.correa.registro_de_notas_sin_ia.data.cursos
 import com.correa.registro_de_notas_sin_ia.data.calcularPromedioPonderado
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import kotlin.math.roundToInt
+
 @Composable
 fun PantallaRegistro(
     modifier: Modifier = Modifier
@@ -73,6 +79,19 @@ fun PantallaRegistro(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            Column {
+                Text(
+                    text = "Notas del ciclo",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "Desliza para asignar cada nota (0 a 20)",
+                    color = Color.Gray,
+                    fontSize = 13.sp
+                )
+            }
 
             CursoItem(
                 nombre = cursos[0].nombre,
@@ -124,7 +143,11 @@ fun PantallaRegistro(
                     checked = redondearPromedio,
                     onCheckedChange = {
                         redondearPromedio = it
-                    }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = PurpuraPrincipal
+                    )
                 )
             }
 
@@ -137,7 +160,10 @@ fun PantallaRegistro(
                     checked = notasConfirmadas,
                     onCheckedChange = {
                         notasConfirmadas = it
-                    }
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = PurpuraPrincipal
+                    )
                 )
 
                 Text(
@@ -150,7 +176,11 @@ fun PantallaRegistro(
                     mostrarResultado = true
                 },
                 enabled = notasConfirmadas,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PurpuraPrincipal,
+                    disabledContainerColor = PurpuraClaro
+                )
             ) {
                 Text("CALCULAR PROMEDIO")
             }
@@ -188,13 +218,21 @@ fun PantallaRegistro(
                 TarjetaResultado(
                     promedioPonderado = promedioPonderado,
                     promedioFinal = promedioFinal,
-                    observacion = observacion
+                    observacion = observacion,
+                    fueRedondeado = redondearPromedio
                 )
 
                 Text(
-                    text = "Promedio calculado correctamente"
+                    text = "✓ Promedio calculado correctamente",
+                    color = VerdeAprobado
                 )
             }
+
+            Text(
+                text = "Desarrollado por: Fernando Correa",
+                color = Color.Gray,
+                fontSize = 12.sp
+            )
         }
     }
 }
