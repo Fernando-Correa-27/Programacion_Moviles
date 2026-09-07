@@ -5,9 +5,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarraSuperior() {
+
     CenterAlignedTopAppBar(
         title = {
             Text("Registro de Notas")

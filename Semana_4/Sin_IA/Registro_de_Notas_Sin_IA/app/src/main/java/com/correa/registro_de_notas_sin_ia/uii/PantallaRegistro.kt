@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -19,8 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.correa.registro_de_notas_sin_ia.data.cursos
+import com.correa.registro_de_notas_sin_ia.data.calcularPromedioPonderado
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 @Composable
 fun PantallaRegistro(
     modifier: Modifier = Modifier
@@ -50,10 +53,13 @@ fun PantallaRegistro(
         mutableStateOf(false)
     }
 
+    var mostrarResultado by remember {
+        mutableStateOf(false)
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
-            @OptIn(ExperimentalMaterial3Api::class)
             BarraSuperior()
         }
     ) { innerPadding ->
@@ -62,6 +68,7 @@ fun PantallaRegistro(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -139,12 +146,34 @@ fun PantallaRegistro(
 
             Button(
                 onClick = {
-                    //
+                    mostrarResultado = true
                 },
                 enabled = notasConfirmadas,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("CALCULAR PROMEDIO")
+            }
+
+            if (!mostrarResultado) {
+
+                Text(
+                    text = "Asigna las notas y confirma para calcular",
+                    color = Color.Gray
+                )
+            }
+
+            if (mostrarResultado) {
+
+                val promedioPonderado = calcularPromedioPonderado(
+                    notaFundamentos = notaFundamentos,
+                    notaPOO = notaPOO,
+                    notaMoviles = notaMoviles,
+                    notaBD = notaBD
+                )
+
+                Text(
+                    text = "Promedio ponderado: %.2f".format(promedioPonderado)
+                )
             }
         }
     }
