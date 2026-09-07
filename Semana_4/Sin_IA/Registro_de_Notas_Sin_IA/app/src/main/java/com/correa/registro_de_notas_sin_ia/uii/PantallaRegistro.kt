@@ -24,6 +24,7 @@ import com.correa.registro_de_notas_sin_ia.data.cursos
 import com.correa.registro_de_notas_sin_ia.data.calcularPromedioPonderado
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import kotlin.math.roundToInt
 @Composable
 fun PantallaRegistro(
     modifier: Modifier = Modifier
@@ -171,8 +172,29 @@ fun PantallaRegistro(
                     notaBD = notaBD
                 )
 
+                val promedioFinal = if (redondearPromedio) {
+                    promedioPonderado.roundToInt().toString()
+                } else {
+                    "%.2f".format(promedioPonderado)
+                }
+
+                val observacion = when {
+                    promedioPonderado >= 17 -> "EXCELENTE"
+                    promedioPonderado >= 13 -> "APROBADO"
+                    promedioPonderado >= 10 -> "EN RECUPERACIÓN"
+                    else -> "DESAPROBADO"
+                }
+
                 Text(
                     text = "Promedio ponderado: %.2f".format(promedioPonderado)
+                )
+
+                Text(
+                    text = "Promedio final: $promedioFinal"
+                )
+
+                Text(
+                    text = "Observación: $observacion"
                 )
             }
         }
