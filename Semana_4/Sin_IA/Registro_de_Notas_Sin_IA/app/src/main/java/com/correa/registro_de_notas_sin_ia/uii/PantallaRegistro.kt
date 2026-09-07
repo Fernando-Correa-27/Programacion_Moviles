@@ -185,16 +185,14 @@ fun PantallaRegistro(
                     else -> "DESAPROBADO"
                 }
 
-                Text(
-                    text = "Promedio ponderado: %.2f".format(promedioPonderado)
+                TarjetaResultado(
+                    promedioPonderado = promedioPonderado,
+                    promedioFinal = promedioFinal,
+                    observacion = observacion
                 )
 
                 Text(
-                    text = "Promedio final: $promedioFinal"
-                )
-
-                Text(
-                    text = "Observación: $observacion"
+                    text = "Promedio calculado correctamente"
                 )
             }
         }
