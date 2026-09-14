@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.correa.lab4_correa_control_de_tareas_sin_ia.ui.theme.Lab4_correa_Control_de_tareas_SIN_IATheme
+import com.correa.lab4_correa_control_de_tareas_sin_ia.ui.TareaListScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Lab4_correa_Control_de_tareas_SIN_IATheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TemperatureDisplay(
+                    TareaListScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
