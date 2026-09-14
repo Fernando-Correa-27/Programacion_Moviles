@@ -18,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.correa.lab4_correa_control_de_tareas_sin_ia.Tarea
+import androidx.compose.ui.tooling.preview.Preview
+import com.correa.lab4_correa_control_de_tareas_sin_ia.ui.theme.Lab4_correa_Control_de_tareas_SIN_IATheme
 
 @Composable
 fun TareaListScreen(modifier: Modifier = Modifier) {
@@ -69,5 +71,13 @@ fun TareaListScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TareaListScreenPreview() {
+    Lab4_correa_Control_de_tareas_SIN_IATheme {
+        TareaListScreen()
     }
 }
