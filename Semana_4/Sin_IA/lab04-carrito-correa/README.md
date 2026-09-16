@@ -6,8 +6,8 @@ Aplicación de carrito de compras en Jetpack Compose que integra modelo de datos
 formulario y lista dinámica con LazyColumn.
 
 ## Capturas
-![Vacío](capturas/vacio.png)
-![Con productos](capturas/con_productos.png)
+![Vacío](vacio.png)
+![Con productos](con_productos.png)
 
 ## Respuestas conceptuales
 
