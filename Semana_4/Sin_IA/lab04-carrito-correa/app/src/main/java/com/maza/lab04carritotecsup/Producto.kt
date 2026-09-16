@@ -45,6 +45,7 @@ data class Producto(
     val cantidad: Int
 )
 
+
 val MoradoTecsup = Color(0xFF6A4FA3)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +73,7 @@ fun Estructura() {
         PantallaCarrito()
     }
 }
+
 
 @Composable
 fun PantallaCarrito() {
