@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -82,6 +84,9 @@ fun PantallaCarrito() {
     var cantidad by remember { mutableStateOf("") }
 
     val productos = remember { mutableStateListOf<Producto>() }
+
+    // NUEVO (Reto 1): guarda el producto que se está por eliminar, mientras se confirma
+    var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
@@ -143,7 +148,11 @@ fun PantallaCarrito() {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(productos) { producto ->
-                    TarjetaProducto(producto = producto, onEliminar = { productos.remove(producto) })
+                    TarjetaProducto(
+                        producto = producto,
+                        // CAMBIO (Reto 1): ya no elimina directo, solo marca cuál se quiere eliminar
+                        onEliminar = { productoAEliminar = producto }
+                    )
                 }
             }
         }
@@ -153,6 +162,13 @@ fun PantallaCarrito() {
         val igv = subtotal * 0.18
         val total = subtotal + igv
 
+        // NUEVO (Reto 2): descuento según el total
+        val descuento = when {
+            total > 5000 -> total * 0.10
+            total > 3000 -> total * 0.05
+            else -> 0.0
+        }
+        val totalConDescuento = total - descuento
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -171,16 +187,47 @@ fun PantallaCarrito() {
                     Text("IGV (18%)")
                     Text("S/ ${"%.2f".format(igv)}")
                 }
+
+                // NUEVO (Reto 2): solo se muestra si hay descuento aplicable
+                if (descuento > 0) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Descuento")
+                        Text(
+                            "- S/ ${"%.2f".format(descuento)}",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("TOTAL", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        "S/ ${"%.2f".format(total)}",
+                        // CAMBIO (Reto 2): usa el total con descuento aplicado
+                        "S/ ${"%.2f".format(totalConDescuento)}",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
+        }
+
+        // NUEVO (Reto 1): diálogo de confirmación, se muestra solo si hay un producto marcado
+        productoAEliminar?.let { p ->
+            AlertDialog(
+                onDismissRequest = { productoAEliminar = null },
+                title = { Text("¿Eliminar este producto?") },
+                text = { Text(p.nombre) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        productos.remove(p)
+                        productoAEliminar = null
+                    }) { Text("Eliminar") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { productoAEliminar = null }) { Text("Cancelar") }
+                }
+            )
         }
     }
 
