@@ -77,4 +77,5 @@ fun PantallaCarrito() {
 
         Text("Productos: ${productos.size}")
     }
+    // Etapa 3
 }
