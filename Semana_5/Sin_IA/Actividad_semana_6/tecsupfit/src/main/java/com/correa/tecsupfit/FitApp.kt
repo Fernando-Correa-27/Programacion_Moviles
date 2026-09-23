@@ -1,6 +1,5 @@
 package com.correa.tecsupfit
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -25,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -74,10 +72,6 @@ fun FitApp() {
                 Screen.Inicio.route -> TopBarFit()
                 Screen.DetalleClase.route -> TopBarBlanca(
                     titulo = "Detalle de clase",
-                    onBack = { navController.popBackStack() }
-                )
-                Screen.Confirmacion.route -> TopBarBlanca(
-                    titulo = "Confirmación",
                     onBack = { navController.popBackStack() }
                 )
                 else -> {}
@@ -279,18 +273,3 @@ private data class BarraItem(
     val label: String,
     val route: String
 )
-
-@Composable
-fun PantallaEnConstruccion(titulo: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "$titulo - en construcción",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        )
-    }
-}
