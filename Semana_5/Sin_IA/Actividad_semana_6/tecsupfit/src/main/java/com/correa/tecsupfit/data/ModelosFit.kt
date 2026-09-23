@@ -25,3 +25,20 @@ data class Reserva(
     val sala: String,
     val estado: EstadoReserva
 )
+
+data class Rutina(
+    val id: Int,
+    val nombre: String,
+    val ejercicios: String,
+    val duracionMin: Int,
+    val intensidad: String
+)
+
+data class UsuarioFit(
+    val nombre: String,
+    val apellido: String,
+    val iniciales: String,
+    val plan: String,
+    val clasesTomadas: Int,
+    val rachaDias: Int
+)

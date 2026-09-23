@@ -44,7 +44,9 @@ import com.correa.tecsupfit.navigation.Screen
 import com.correa.tecsupfit.screens.ConfirmacionFitScreen
 import com.correa.tecsupfit.screens.DetalleClaseScreen
 import com.correa.tecsupfit.screens.InicioFitScreen
+import com.correa.tecsupfit.screens.PerfilFitScreen
 import com.correa.tecsupfit.screens.ReservasScreen
+import com.correa.tecsupfit.screens.RutinasScreen
 
 private val tabRutas = setOf(
     Screen.Inicio.route,
@@ -108,11 +110,11 @@ fun FitApp() {
             }
 
             composable(Screen.Rutinas.route) {
-                PantallaEnConstruccion(titulo = "Rutinas")
+                RutinasScreen(rutinas = com.correa.tecsupfit.data.rutinasDatos)
             }
 
             composable(Screen.Perfil.route) {
-                PantallaEnConstruccion(titulo = "Mi perfil")
+                PerfilFitScreen(usuario = com.correa.tecsupfit.data.usuarioFit)
             }
 
             composable(

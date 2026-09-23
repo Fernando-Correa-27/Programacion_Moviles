@@ -69,3 +69,36 @@ val reservasIniciales = listOf(
         estado = EstadoReserva.COMPLETADA
     )
 )
+
+val rutinasDatos = listOf(
+    Rutina(
+        id = 1,
+        nombre = "Fuerza superior",
+        ejercicios = "Press, remo, dominadas",
+        duracionMin = 45,
+        intensidad = "Alta"
+    ),
+    Rutina(
+        id = 2,
+        nombre = "Full body",
+        ejercicios = "Sentadillas, empuje, core",
+        duracionMin = 60,
+        intensidad = "Media"
+    ),
+    Rutina(
+        id = 3,
+        nombre = "Cardio quemagrasa",
+        ejercicios = "Cinta, burpees, cuerda",
+        duracionMin = 30,
+        intensidad = "Alta"
+    )
+)
+
+val usuarioFit = UsuarioFit(
+    nombre = "Diego",
+    apellido = "Ramírez",
+    iniciales = "DR",
+    plan = "Plan Premium",
+    clasesTomadas = 14,
+    rachaDias = 3
+)
