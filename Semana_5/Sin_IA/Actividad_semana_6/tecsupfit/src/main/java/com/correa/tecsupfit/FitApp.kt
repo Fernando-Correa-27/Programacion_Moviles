@@ -39,6 +39,7 @@ import androidx.navigation.navArgument
 import com.correa.tecsupfit.data.Reserva
 import com.correa.tecsupfit.data.reservasIniciales
 import com.correa.tecsupfit.navigation.Screen
+import com.correa.tecsupfit.screens.InicioFitScreen
 
 private val tabRutas = setOf(
     Screen.Inicio.route,
@@ -82,7 +83,11 @@ fun FitApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Inicio.route) {
-                PantallaEnConstruccion(titulo = "Inicio")
+                InicioFitScreen(
+                    onClaseClick = { claseId ->
+                        navController.navigate(Screen.DetalleClase.createRoute(claseId))
+                    }
+                )
             }
 
             composable(Screen.Reservas.route) {
