@@ -50,9 +50,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.correa.actividad_semana_6.data.Cita
+import com.correa.actividad_semana_6.data.EstadoCita
 import com.correa.actividad_semana_6.data.citasIniciales
+import com.correa.actividad_semana_6.data.fechasDisponibles
+import com.correa.actividad_semana_6.data.horasDisponibles
 import com.correa.actividad_semana_6.navigation.Screen
 import com.correa.actividad_semana_6.screens.AgendarScreen
+import com.correa.actividad_semana_6.screens.ConfirmacionScreen
 import com.correa.actividad_semana_6.screens.InicioScreen
 import com.correa.actividad_semana_6.screens.PerfilMedicoScreen
 import kotlinx.coroutines.launch
@@ -135,6 +139,17 @@ fun ClinicaApp() {
                     medicoId = medicoId,
                     onBack = { navController.popBackStack() },
                     onConfirmar = { id, fechaIdx, horaIdx ->
+                        val medico = com.correa.actividad_semana_6.data.medicos.first { it.id == id }
+                        citas.add(
+                            Cita(
+                                id = (citas.maxOfOrNull { it.id } ?: 0) + 1,
+                                nombreMedico = medico.nombre,
+                                especialidad = medico.especialidad,
+                                fecha = fechasDisponibles[fechaIdx],
+                                hora = horasDisponibles[horaIdx],
+                                estado = EstadoCita.CONFIRMADA
+                            )
+                        )
                         navController.navigate(Screen.Confirmacion.createRoute(id, fechaIdx, horaIdx))
                     }
                 )
@@ -147,8 +162,27 @@ fun ClinicaApp() {
                     navArgument("fechaIdx") { type = NavType.IntType },
                     navArgument("horaIdx") { type = NavType.IntType }
                 )
-            ) {
-                PantallaEnConstruccion(titulo = "Confirmación")
+            ) { entry ->
+                val medicoId = entry.arguments?.getInt("medicoId") ?: 0
+                val fechaIdx = entry.arguments?.getInt("fechaIdx") ?: 0
+                val horaIdx = entry.arguments?.getInt("horaIdx") ?: 0
+                ConfirmacionScreen(
+                    medicoId = medicoId,
+                    fechaIdx = fechaIdx,
+                    horaIdx = horaIdx,
+                    onVerMisCitas = {
+                        navController.navigate(Screen.MisCitas.route) {
+                            popUpTo(Screen.Inicio.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onVolverAlInicio = {
+                        navController.navigate(Screen.Inicio.route) {
+                            popUpTo(Screen.Inicio.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
         }
     }
