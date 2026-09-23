@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.correa.navlab.navigation.Screen
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +65,11 @@ fun ListScreen(
                     supportingContent = {
                         Text("ID: ${index + 1}")
                     },
-                    modifier = Modifier
+                    modifier = Modifier.clickable {
+                        navController.navigate(
+                            Screen.Detail.createRoute(index + 1)
+                        )
+                    }
                 )
 
                 HorizontalDivider()
