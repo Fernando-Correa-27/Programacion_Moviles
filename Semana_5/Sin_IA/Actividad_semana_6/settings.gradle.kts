@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Actividad_semana_6"
 include(":app")
+include(":tecsupfit")
  
