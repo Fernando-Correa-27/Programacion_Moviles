@@ -2,10 +2,18 @@ package com.correa.navlab.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Paleta de colores académica estilo Tecsup
+val TecsupNavyPrimary = Color(0xFF003865)
+val TecsupNavyPrimaryDark = Color(0xFF002240)
+val TecsupNavyLight = Color(0xFF1E5B94)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val TecsupTealSecondary = Color(0xFF008080)
+val TecsupTealLight = Color(0xFF4DB6AC)
+
+val TecsupBlueTertiary = Color(0xFF0288D1)
+
+val SurfaceLight = Color(0xFFF8F9FA)
+val SurfaceVariantLight = Color(0xFFEDF2F7)
+
+val TecsupNavyDarkPrimary = Color(0xFF90CAF9)
+val TecsupNavyDarkSecondary = Color(0xFF80CBC4)
