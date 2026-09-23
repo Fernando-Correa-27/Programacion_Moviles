@@ -52,7 +52,9 @@ import androidx.navigation.navArgument
 import com.correa.actividad_semana_6.data.Cita
 import com.correa.actividad_semana_6.data.citasIniciales
 import com.correa.actividad_semana_6.navigation.Screen
+import com.correa.actividad_semana_6.screens.AgendarScreen
 import com.correa.actividad_semana_6.screens.InicioScreen
+import com.correa.actividad_semana_6.screens.PerfilMedicoScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -113,15 +115,29 @@ fun ClinicaApp() {
             composable(
                 route = Screen.PerfilMedico.route,
                 arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
-            ) {
-                PantallaEnConstruccion(titulo = "Perfil del médico")
+            ) { entry ->
+                val medicoId = entry.arguments?.getInt("medicoId") ?: 0
+                PerfilMedicoScreen(
+                    medicoId = medicoId,
+                    onBack = { navController.popBackStack() },
+                    onAgendarCita = {
+                        navController.navigate(Screen.AgendarCita.createRoute(medicoId))
+                    }
+                )
             }
 
             composable(
                 route = Screen.AgendarCita.route,
                 arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
-            ) {
-                PantallaEnConstruccion(titulo = "Agendar cita")
+            ) { entry ->
+                val medicoId = entry.arguments?.getInt("medicoId") ?: 0
+                AgendarScreen(
+                    medicoId = medicoId,
+                    onBack = { navController.popBackStack() },
+                    onConfirmar = { id, fechaIdx, horaIdx ->
+                        navController.navigate(Screen.Confirmacion.createRoute(id, fechaIdx, horaIdx))
+                    }
+                )
             }
 
             composable(
