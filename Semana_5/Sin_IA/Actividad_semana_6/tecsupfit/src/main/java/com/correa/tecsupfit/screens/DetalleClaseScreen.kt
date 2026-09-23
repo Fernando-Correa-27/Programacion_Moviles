@@ -133,6 +133,6 @@ fun DetalleClaseScreen(
             onClick = { onReservar(claseId, horarioIdx) }
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

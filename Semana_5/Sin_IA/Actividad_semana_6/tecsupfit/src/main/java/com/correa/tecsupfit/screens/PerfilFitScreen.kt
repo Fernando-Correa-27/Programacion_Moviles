@@ -94,5 +94,14 @@ fun PerfilFitScreen(
                 modifier = Modifier.weight(1f)
             )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Sigue así, tu constancia suma.",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
