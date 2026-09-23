@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -39,6 +41,8 @@ import androidx.navigation.navArgument
 import com.correa.tecsupfit.data.Reserva
 import com.correa.tecsupfit.data.reservasIniciales
 import com.correa.tecsupfit.navigation.Screen
+import com.correa.tecsupfit.screens.ConfirmacionFitScreen
+import com.correa.tecsupfit.screens.DetalleClaseScreen
 import com.correa.tecsupfit.screens.InicioFitScreen
 
 private val tabRutas = setOf(
@@ -64,7 +68,15 @@ fun FitApp() {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             when (currentRoute) {
-                Screen.Inicio.route -> TopBarFit(mostrarMenu = false)
+                Screen.Inicio.route -> TopBarFit()
+                Screen.DetalleClase.route -> TopBarBlanca(
+                    titulo = "Detalle de clase",
+                    onBack = { navController.popBackStack() }
+                )
+                Screen.Confirmacion.route -> TopBarBlanca(
+                    titulo = "Confirmación",
+                    onBack = { navController.popBackStack() }
+                )
                 else -> {}
             }
         },
@@ -105,8 +117,24 @@ fun FitApp() {
             composable(
                 route = Screen.DetalleClase.route,
                 arguments = listOf(navArgument("claseId") { type = NavType.IntType })
-            ) {
-                PantallaEnConstruccion(titulo = "Detalle de clase")
+            ) { entry ->
+                val claseId = entry.arguments?.getInt("claseId") ?: 0
+                DetalleClaseScreen(
+                    claseId = claseId,
+                    onReservar = { id, horarioIdx ->
+                        val clase = com.correa.tecsupfit.data.clasesFit.first { it.id == id }
+                        reservas.add(
+                            Reserva(
+                                id = (reservas.maxOfOrNull { it.id } ?: 0) + 1,
+                                nombreClase = clase.nombre,
+                                horario = clase.horariosDisponibles[horarioIdx],
+                                sala = clase.sala,
+                                estado = com.correa.tecsupfit.data.EstadoReserva.CONFIRMADA
+                            )
+                        )
+                        navController.navigate(Screen.Confirmacion.createRoute(id, horarioIdx))
+                    }
+                )
             }
 
             composable(
@@ -115,8 +143,19 @@ fun FitApp() {
                     navArgument("claseId") { type = NavType.IntType },
                     navArgument("horarioIdx") { type = NavType.IntType }
                 )
-            ) {
-                PantallaEnConstruccion(titulo = "Confirmación")
+            ) { entry ->
+                val claseId = entry.arguments?.getInt("claseId") ?: 0
+                val horarioIdx = entry.arguments?.getInt("horarioIdx") ?: 0
+                ConfirmacionFitScreen(
+                    claseId = claseId,
+                    horarioIdx = horarioIdx,
+                    onVerReservas = {
+                        navController.navigate(Screen.Reservas.route) {
+                            popUpTo(Screen.Inicio.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
         }
     }
@@ -125,7 +164,6 @@ fun FitApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBarFit(
-    mostrarMenu: Boolean,
     saludo: String = "Hola, Diego"
 ) {
     TopAppBar(
@@ -148,6 +186,36 @@ private fun TopBarFit(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBarBlanca(
+    titulo: String,
+    onBack: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = titulo,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        navigationIcon = {
+            androidx.compose.material3.IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface
         )
     )
 }
