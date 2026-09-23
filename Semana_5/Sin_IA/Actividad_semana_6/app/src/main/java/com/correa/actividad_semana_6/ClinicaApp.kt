@@ -52,6 +52,7 @@ import androidx.navigation.navArgument
 import com.correa.actividad_semana_6.data.Cita
 import com.correa.actividad_semana_6.data.citasIniciales
 import com.correa.actividad_semana_6.navigation.Screen
+import com.correa.actividad_semana_6.screens.InicioScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,7 +90,12 @@ fun ClinicaApp() {
             startDestination = Screen.Inicio.route
         ) {
             composable(Screen.Inicio.route) {
-                PantallaEnConstruccion(titulo = "Inicio")
+                InicioScreen(
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    onMedicoClick = { medicoId ->
+                        navController.navigate(Screen.PerfilMedico.createRoute(medicoId))
+                    }
+                )
             }
 
             composable(Screen.MisCitas.route) {
