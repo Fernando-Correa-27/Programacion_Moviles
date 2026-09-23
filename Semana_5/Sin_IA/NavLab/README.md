@@ -94,3 +94,14 @@ Actualmente recibe:
 
 ```kotlin
 itemId: Int
+```
+
+
+
+## Capturas de Funcionamiento
+
+![Captura del funcionamiento](img/imagen_1.png)
+
+![Captura del funcionamiento](img/imagen_2.png)
+
+![Captura del funcionamiento](img/imagen_3.png)
