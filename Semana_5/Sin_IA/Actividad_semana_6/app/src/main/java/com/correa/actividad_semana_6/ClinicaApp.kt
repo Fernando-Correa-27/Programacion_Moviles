@@ -60,6 +60,7 @@ import com.correa.actividad_semana_6.screens.ConfirmacionScreen
 import com.correa.actividad_semana_6.screens.InicioScreen
 import com.correa.actividad_semana_6.screens.MisCitasScreen
 import com.correa.actividad_semana_6.screens.PerfilMedicoScreen
+import com.correa.actividad_semana_6.screens.PerfilUsuarioScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -113,11 +114,14 @@ fun ClinicaApp() {
             }
 
             composable(Screen.Historial.route) {
-                PantallaEnConstruccion(titulo = "Historial médico")
+                MisCitasScreen(
+                    citas = citas.filter { it.estado == EstadoCita.COMPLETADA },
+                    titulo = "Historial médico"
+                )
             }
 
             composable(Screen.Perfil.route) {
-                PantallaEnConstruccion(titulo = "Perfil")
+                PerfilUsuarioScreen()
             }
 
             composable(
