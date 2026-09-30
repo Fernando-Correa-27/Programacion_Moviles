@@ -11,11 +11,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -113,10 +118,27 @@ fun ProductCard(
 
     DropdownMenu(
         expanded = menuExpandido,
-        onDismissRequest = { menuExpandido = false }
+        onDismissRequest = { menuExpandido = false },
+        shape = RoundedCornerShape(14.dp),
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
+        // Encabezado del menu: identifica a que producto pertenece
+        Text(
+            text = producto.nombre,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+        )
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
         DropdownMenuItem(
             text = { Text("Ver detalle") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Visibility,
+                    contentDescription = null
+                )
+            },
             onClick = {
                 menuExpandido = false
                 onClick()
@@ -124,14 +146,37 @@ fun ProductCard(
         )
         DropdownMenuItem(
             text = { Text("Agregar al carrito") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = null
+                )
+            },
+            onClick = { menuExpandido = false }
+        )
+
+        // Separador entre el bloque de acciones y el bloque de-edicion
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+        DropdownMenuItem(
+            text = { Text("Marcar como favorito") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.FavoriteBorder,
+                    contentDescription = null
+                )
+            },
             onClick = { menuExpandido = false }
         )
         DropdownMenuItem(
-            text = { Text("Favorito") },
-            onClick = { menuExpandido = false }
-        )
-        DropdownMenuItem(
-            text = { Text("Eliminar") },
+            text = { Text("Eliminar del carrito") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.DeleteOutline,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
             onClick = { menuExpandido = false }
         )
     }
