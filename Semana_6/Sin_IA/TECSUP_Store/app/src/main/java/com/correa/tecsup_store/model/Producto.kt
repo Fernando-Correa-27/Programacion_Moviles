@@ -2,6 +2,7 @@ package com.correa.tecsup_store.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Headphones
@@ -38,7 +39,7 @@ data class Categoria(
 object CatalogoTienda {
 
     val categorias = listOf(
-        Categoria("Todos", Icons.Default.MenuBook),
+        Categoria("Todos", Icons.AutoMirrored.Filled.MenuBook),
         Categoria("Tecnología", Icons.Default.Computer),
         Categoria("Dispositivos", Icons.Default.Devices),
         Categoria("Audio", Icons.Default.Headphones),
