@@ -72,6 +72,9 @@ fun AppNavigation(estado: TiendaEstado) {
     // ModalNavigationDrawer envuelve al Scaffold existente sin romperlo
     TiendaNavigationDrawer(
         drawerState = drawerState,
+        rutaActual = rutaActual,
+        unidadesEnCarrito = estado.unidadesEnCarrito,
+        totalFavoritos = estado.favoritos.size,
         onNavegar = { seccion ->
             navController.navigate(seccion.route) {
                 // Evita apilar la misma seccion varias veces
@@ -80,7 +83,8 @@ fun AppNavigation(estado: TiendaEstado) {
                 restoreState = true
             }
             scope.launch { drawerState.close() }
-        }
+        },
+        onCerrarDrawer = { scope.launch { drawerState.close() } }
     ) {
 
     Scaffold(
