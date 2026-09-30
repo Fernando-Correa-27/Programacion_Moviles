@@ -28,10 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -47,14 +43,17 @@ import com.correa.tecsup_store.model.Producto
 fun ProductCard(
     producto: Producto,
     modifier: Modifier = Modifier,
+    menuExpandido: Boolean = false,
+    onToggleMenu: () -> Unit = {},
     esFavorito: Boolean = false,
     onClick: () -> Unit = {},
     onAgregarAlCarrito: () -> Unit = {},
     onAlternarFavorito: () -> Unit = {},
     onEliminar: () -> Unit = {}
 ) {
-    // Estado independiente que controla la expansion del menu contextual
-    var menuExpandido by remember { mutableStateOf(false) }
+    // El estado de expansion vive en la pantalla padre: asi el menu queda
+    // asociado a un solo producto a la vez.
+    fun cerrarMenu() = onToggleMenu()
 
     Box(modifier = modifier) {
     Card(
@@ -111,7 +110,7 @@ fun ProductCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                IconButton(onClick = { menuExpandido = !menuExpandido }) {
+                IconButton(onClick = onToggleMenu) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Opciones de ${producto.nombre}"
@@ -123,7 +122,7 @@ fun ProductCard(
 
     DropdownMenu(
         expanded = menuExpandido,
-        onDismissRequest = { menuExpandido = false },
+        onDismissRequest = { cerrarMenu() },
         shape = RoundedCornerShape(14.dp),
         containerColor = MaterialTheme.colorScheme.surface
     ) {
@@ -145,7 +144,7 @@ fun ProductCard(
                 )
             },
             onClick = {
-                menuExpandido = false
+                cerrarMenu()
                 onClick()
             }
         )
@@ -158,7 +157,7 @@ fun ProductCard(
                 )
             },
             onClick = {
-                menuExpandido = false
+                cerrarMenu()
                 onAgregarAlCarrito()
             }
         )
@@ -176,7 +175,7 @@ fun ProductCard(
                 )
             },
             onClick = {
-                menuExpandido = false
+                cerrarMenu()
                 onAlternarFavorito()
             }
         )
@@ -190,7 +189,7 @@ fun ProductCard(
                 )
             },
             onClick = {
-                menuExpandido = false
+                cerrarMenu()
                 onEliminar()
             }
         )

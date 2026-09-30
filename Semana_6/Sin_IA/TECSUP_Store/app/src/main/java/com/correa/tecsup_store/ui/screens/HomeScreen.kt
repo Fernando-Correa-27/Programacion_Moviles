@@ -48,6 +48,9 @@ fun HomeScreen(
 ) {
     var categoriaSeleccionada by remember { mutableStateOf("Todos") }
 
+    // Un unico producto puede tener su menu contextual abierto a la vez
+    var productoConMenu by remember { mutableStateOf<Producto?>(null) }
+
     val productosFiltrados = remember(categoriaSeleccionada) {
         if (categoriaSeleccionada == "Todos") {
             CatalogoTienda.productos
@@ -119,6 +122,10 @@ fun HomeScreen(
                 items(productosFiltrados, key = { it.id }) { producto ->
                     ProductCard(
                         producto = producto,
+                        menuExpandido = productoConMenu?.id == producto.id,
+                        onToggleMenu = {
+                            productoConMenu = if (productoConMenu?.id == producto.id) null else producto
+                        },
                         esFavorito = estado.esFavorito(producto.id),
                         onClick = { onVerDetalle(producto) },
                         onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },
@@ -141,6 +148,10 @@ fun HomeScreen(
                 items(seccion.productos, key = { "${seccion.titulo}-${it.id}" }) { producto ->
                     ProductCard(
                         producto = producto,
+                        menuExpandido = productoConMenu?.id == producto.id,
+                        onToggleMenu = {
+                            productoConMenu = if (productoConMenu?.id == producto.id) null else producto
+                        },
                         esFavorito = estado.esFavorito(producto.id),
                         onClick = { onVerDetalle(producto) },
                         onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },

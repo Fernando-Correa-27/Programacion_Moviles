@@ -40,6 +40,7 @@ fun CartScreen(
     modifier: Modifier = Modifier
 ) {
     var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
+    var productoConMenu by remember { mutableStateOf<Producto?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
 
@@ -68,6 +69,10 @@ fun CartScreen(
                 items(estado.carrito, key = { it.id }) { producto ->
                     ProductCard(
                         producto = producto,
+                        menuExpandido = productoConMenu?.id == producto.id,
+                        onToggleMenu = {
+                            productoConMenu = if (productoConMenu?.id == producto.id) null else producto
+                        },
                         esFavorito = estado.esFavorito(producto.id),
                         onClick = { productoAEliminar = producto },
                         onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },
