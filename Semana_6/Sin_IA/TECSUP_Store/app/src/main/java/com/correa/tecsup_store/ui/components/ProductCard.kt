@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -46,7 +47,11 @@ import com.correa.tecsup_store.model.Producto
 fun ProductCard(
     producto: Producto,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    esFavorito: Boolean = false,
+    onClick: () -> Unit = {},
+    onAgregarAlCarrito: () -> Unit = {},
+    onAlternarFavorito: () -> Unit = {},
+    onEliminar: () -> Unit = {}
 ) {
     // Estado independiente que controla la expansion del menu contextual
     var menuExpandido by remember { mutableStateOf(false) }
@@ -152,21 +157,28 @@ fun ProductCard(
                     contentDescription = null
                 )
             },
-            onClick = { menuExpandido = false }
+            onClick = {
+                menuExpandido = false
+                onAgregarAlCarrito()
+            }
         )
 
         // Separador entre el bloque de acciones y el bloque de-edicion
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
         DropdownMenuItem(
-            text = { Text("Marcar como favorito") },
+            text = { Text(if (esFavorito) "Quitar de favoritos" else "Marcar como favorito") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = null
+                    imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = null,
+                    tint = if (esFavorito) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
-            onClick = { menuExpandido = false }
+            onClick = {
+                menuExpandido = false
+                onAlternarFavorito()
+            }
         )
         DropdownMenuItem(
             text = { Text("Eliminar del carrito") },
@@ -177,7 +189,10 @@ fun ProductCard(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            onClick = { menuExpandido = false }
+            onClick = {
+                menuExpandido = false
+                onEliminar()
+            }
         )
     }
     }

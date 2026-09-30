@@ -67,8 +67,12 @@ fun CartScreen(
             ) {
                 items(estado.carrito, key = { it.id }) { producto ->
                     ProductCard(
-                        producto = producto.copy(cantidad = producto.cantidad),
-                        onClick = { productoAEliminar = producto }
+                        producto = producto,
+                        esFavorito = estado.esFavorito(producto.id),
+                        onClick = { productoAEliminar = producto },
+                        onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },
+                        onAlternarFavorito = { estado.alternarFavorito(producto.id) },
+                        onEliminar = { estado.eliminarDelCarrito(producto) }
                     )
                 }
             }

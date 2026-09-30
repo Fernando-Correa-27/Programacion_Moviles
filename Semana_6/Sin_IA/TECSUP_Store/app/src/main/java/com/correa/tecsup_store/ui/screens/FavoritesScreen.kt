@@ -64,7 +64,11 @@ fun FavoritesScreen(
         items(favoritos, key = { it.id }) { producto ->
             ProductCard(
                 producto = producto,
-                onClick = { onVerDetalle(producto) }
+                esFavorito = true,
+                onClick = { onVerDetalle(producto) },
+                onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },
+                onAlternarFavorito = { estado.alternarFavorito(producto.id) },
+                onEliminar = { estado.eliminarDelCarrito(producto) }
             )
         }
     }

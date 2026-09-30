@@ -119,7 +119,11 @@ fun HomeScreen(
                 items(productosFiltrados, key = { it.id }) { producto ->
                     ProductCard(
                         producto = producto,
-                        onClick = { onVerDetalle(producto) }
+                        esFavorito = estado.esFavorito(producto.id),
+                        onClick = { onVerDetalle(producto) },
+                        onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },
+                        onAlternarFavorito = { estado.alternarFavorito(producto.id) },
+                        onEliminar = { estado.eliminarDelCarrito(producto) }
                     )
                 }
             }
@@ -137,7 +141,11 @@ fun HomeScreen(
                 items(seccion.productos, key = { "${seccion.titulo}-${it.id}" }) { producto ->
                     ProductCard(
                         producto = producto,
-                        onClick = { onVerDetalle(producto) }
+                        esFavorito = estado.esFavorito(producto.id),
+                        onClick = { onVerDetalle(producto) },
+                        onAgregarAlCarrito = { estado.agregarAlCarrito(producto) },
+                        onAlternarFavorito = { estado.alternarFavorito(producto.id) },
+                        onEliminar = { estado.eliminarDelCarrito(producto) }
                     )
                 }
             }
