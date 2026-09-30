@@ -70,7 +70,18 @@ fun AppNavigation(estado: TiendaEstado) {
     }
 
     // ModalNavigationDrawer envuelve al Scaffold existente sin romperlo
-    TiendaNavigationDrawer(drawerState = drawerState) {
+    TiendaNavigationDrawer(
+        drawerState = drawerState,
+        onNavegar = { seccion ->
+            navController.navigate(seccion.route) {
+                // Evita apilar la misma seccion varias veces
+                popUpTo(Screen.Home.route) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+            scope.launch { drawerState.close() }
+        }
+    ) {
 
     Scaffold(
         topBar = {

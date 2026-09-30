@@ -20,6 +20,7 @@ import com.correa.tecsup_store.navigation.Screen
 @Composable
 fun TiendaNavigationDrawer(
     drawerState: DrawerState,
+    onNavegar: (Screen) -> Unit,
     contenido: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(
@@ -32,7 +33,7 @@ fun TiendaNavigationDrawer(
                             label = { Text(seccion.titulo) },
                             icon = {},
                             selected = false,
-                            onClick = {},
+                            onClick = { onNavegar(seccion) },
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                         )
                     }
