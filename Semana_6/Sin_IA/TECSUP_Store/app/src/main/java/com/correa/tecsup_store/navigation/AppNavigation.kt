@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -96,6 +99,24 @@ fun AppNavigation(estado: TiendaEstado) {
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
+                },
+                actions = {
+                    // Badge con las unidades que hay en el carrito
+                    BadgedBox(
+                        badge = {
+                            if (estado.unidadesEnCarrito > 0) {
+                                Badge { Text("${estado.unidadesEnCarrito}") }
+                            }
+                        }
+                    ) {
+                        IconButton(onClick = { navController.navigate(Screen.Cart.route) }) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Ir al carrito",
+                                tint = Color.White
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     if (rutaActual == Screen.Detail.route) {
