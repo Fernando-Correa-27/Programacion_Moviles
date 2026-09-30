@@ -14,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -107,6 +109,31 @@ fun ProductCard(
                 }
             }
         }
+    }
+
+    DropdownMenu(
+        expanded = menuExpandido,
+        onDismissRequest = { menuExpandido = false }
+    ) {
+        DropdownMenuItem(
+            text = { Text("Ver detalle") },
+            onClick = {
+                menuExpandido = false
+                onClick()
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Agregar al carrito") },
+            onClick = { menuExpandido = false }
+        )
+        DropdownMenuItem(
+            text = { Text("Favorito") },
+            onClick = { menuExpandido = false }
+        )
+        DropdownMenuItem(
+            text = { Text("Eliminar") },
+            onClick = { menuExpandido = false }
+        )
     }
     }
 }
