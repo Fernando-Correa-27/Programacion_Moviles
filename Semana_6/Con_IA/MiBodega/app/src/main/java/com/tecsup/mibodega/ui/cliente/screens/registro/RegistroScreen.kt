@@ -37,6 +37,7 @@ import com.tecsup.mibodega.ui.componentes.CampoTexto
 import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
+import com.tecsup.mibodega.ui.cliente.modelo.camposRequeridosCompletos
 
 @Composable
 fun RegistroScreen(
@@ -47,6 +48,7 @@ fun RegistroScreen(
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
+    var intentoCrearCuenta by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -80,7 +82,8 @@ fun RegistroScreen(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Juan Pérez",
+            error = if (intentoCrearCuenta && nombre.isBlank()) "Ingresa tu nombre" else null
         )
         Spacer(Modifier.height(16.dp))
 
@@ -89,7 +92,8 @@ fun RegistroScreen(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            error = if (intentoCrearCuenta && telefono.isBlank()) "Ingresa tu teléfono" else null
         )
         Spacer(Modifier.height(16.dp))
 
@@ -97,7 +101,8 @@ fun RegistroScreen(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Los Olivos 123",
+            error = if (intentoCrearCuenta && direccion.isBlank()) "Ingresa tu dirección" else null
         )
         Spacer(Modifier.height(16.dp))
 
@@ -105,14 +110,20 @@ fun RegistroScreen(
             etiqueta = "Referencia",
             valor = referencia,
             onValorCambia = { referencia = it },
-            placeholder = "Frente al parque"
+            placeholder = "Frente al parque",
+            error = if (intentoCrearCuenta && referencia.isBlank()) "Ingresa una referencia" else null
         )
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Crear cuenta",
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia) }
+            onClick = {
+                intentoCrearCuenta = true
+                if (camposRequeridosCompletos(nombre, telefono, direccion, referencia)) {
+                    onCrearCuenta(nombre.trim(), telefono.trim(), direccion.trim(), referencia.trim())
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))

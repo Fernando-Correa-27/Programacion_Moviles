@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
 import com.tecsup.mibodega.ui.theme.VerdeBodega
+import com.tecsup.mibodega.ui.cliente.modelo.camposRequeridosCompletos
 
 @Composable
 fun DatosEntregaScreen(
@@ -43,6 +44,7 @@ fun DatosEntregaScreen(
     var direccion by remember { mutableStateOf("Av. Los Olivos 123") }
     var referencia by remember { mutableStateOf("Frente al parque") }
     var metodoPago by remember { mutableStateOf("Efectivo al entregar") }
+    var intentoConfirmar by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -62,13 +64,34 @@ fun DatosEntregaScreen(
             Text("Datos de entrega", style = MaterialTheme.typography.titleLarge)
         }
 
-        CampoTexto("Nombre", nombre, { nombre = it })
+        CampoTexto(
+            "Nombre",
+            nombre,
+            { nombre = it },
+            error = if (intentoConfirmar && nombre.isBlank()) "Ingresa tu nombre" else null
+        )
         Spacer(Modifier.height(8.dp))
-        CampoTexto("Teléfono", telefono, { telefono = it }, teclado = KeyboardType.Phone)
+        CampoTexto(
+            "Teléfono",
+            telefono,
+            { telefono = it },
+            teclado = KeyboardType.Phone,
+            error = if (intentoConfirmar && telefono.isBlank()) "Ingresa tu teléfono" else null
+        )
         Spacer(Modifier.height(8.dp))
-        CampoTexto("Dirección", direccion, { direccion = it })
+        CampoTexto(
+            "Dirección",
+            direccion,
+            { direccion = it },
+            error = if (intentoConfirmar && direccion.isBlank()) "Ingresa tu dirección" else null
+        )
         Spacer(Modifier.height(8.dp))
-        CampoTexto("Referencia", referencia, { referencia = it })
+        CampoTexto(
+            "Referencia",
+            referencia,
+            { referencia = it },
+            error = if (intentoConfirmar && referencia.isBlank()) "Ingresa una referencia" else null
+        )
 
         Text(
             "Método de pago",
@@ -96,7 +119,12 @@ fun DatosEntregaScreen(
         Spacer(Modifier.height(12.dp))
         BotonPrimario(
             texto = "Confirmar pedido",
-            onClick = { onConfirmarPedido(nombre, telefono, direccion, referencia, metodoPago) }
+            onClick = {
+                intentoConfirmar = true
+                if (camposRequeridosCompletos(nombre, telefono, direccion, referencia)) {
+                    onConfirmarPedido(nombre.trim(), telefono.trim(), direccion.trim(), referencia.trim(), metodoPago)
+                }
+            }
         )
         Spacer(Modifier.height(20.dp))
     }
