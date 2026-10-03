@@ -32,8 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.componentes.BarraNavegacionCliente
 import com.tecsup.mibodega.ui.cliente.componentes.SeccionCliente
 import com.tecsup.mibodega.ui.cliente.modelo.Pedido
-import com.tecsup.mibodega.ui.theme.GrisClaro
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -87,7 +85,7 @@ fun PedidosScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = GrisClaro)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Row(
@@ -95,7 +93,7 @@ fun PedidosScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text("Pedido #${pedido.id}", fontWeight = FontWeight.Bold)
-                                Text("Confirmado", color = VerdeBodega)
+                                Text("Confirmado", color = MaterialTheme.colorScheme.primary)
                             }
                             Text(
                                 SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())

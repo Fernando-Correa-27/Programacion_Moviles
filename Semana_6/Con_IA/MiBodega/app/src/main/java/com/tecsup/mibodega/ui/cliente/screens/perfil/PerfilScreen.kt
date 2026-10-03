@@ -2,6 +2,7 @@ package com.tecsup.mibodega.ui.cliente.screens.perfil
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +33,9 @@ fun PerfilScreen(
     telefono: String,
     direccion: String,
     referencia: String,
-    onSeccionSeleccionada: (SeccionCliente) -> Unit
+    onSeccionSeleccionada: (SeccionCliente) -> Unit,
+    modoOscuro: Boolean = false,
+    onModoOscuroCambia: (Boolean) -> Unit = {}
 ) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Perfil") }) },
@@ -49,7 +53,7 @@ fun PerfilScreen(
             Icon(
                 Icons.Default.AccountCircle,
                 contentDescription = null,
-                tint = VerdeBodega,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.height(72.dp)
             )
             Text(nombre, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 8.dp))
@@ -57,6 +61,14 @@ fun PerfilScreen(
             DatoPerfil("Teléfono", telefono)
             DatoPerfil("Dirección", direccion)
             DatoPerfil("Referencia", referencia)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Text("Modo oscuro", fontWeight = FontWeight.Medium)
+                Switch(checked = modoOscuro, onCheckedChange = onModoOscuroCambia)
+            }
         }
     }
 }

@@ -34,8 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
-import com.tecsup.mibodega.ui.theme.GrisClaro
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 
 @Composable
@@ -59,7 +57,7 @@ fun ProductoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.45f)
-                    .background(GrisClaro, RoundedCornerShape(10.dp)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -102,13 +100,13 @@ fun ProductoCard(
                 Text(
                     text = "S/ %.2f".format(producto.precio),
                     style = MaterialTheme.typography.labelMedium,
-                    color = VerdeBodega
+                    color = MaterialTheme.colorScheme.primary
                 )
                 IconButton(
                     onClick = onAgregar,
                     modifier = Modifier
                         .size(30.dp)
-                        .background(VerdeBodega, CircleShape)
+                        .background(MaterialTheme.colorScheme.primary, CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,

@@ -93,7 +93,7 @@ fun InicioScreen(
                     Text(
                         buildAnnotatedString {
                             append("Mi ")
-                            withStyle(SpanStyle(color = VerdeBodega)) { append("Bodega") }
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append("Bodega") }
                         },
                         fontWeight = FontWeight.Bold
                     )
@@ -137,10 +137,10 @@ fun InicioScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = GrisClaro,
-                    focusedContainerColor = GrisClaro,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                    focusedBorderColor = VerdeBodega
+                    focusedBorderColor = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -224,7 +224,7 @@ private fun ChipCategoria(
     seleccionado: Boolean,
     onClick: () -> Unit
 ) {
-    val fondo = if (seleccionado) VerdeBodega else GrisClaro
+    val fondo = if (seleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val contenido = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
     val icono = when (texto) {
         "Bebidas" -> Icons.Default.LocalDrink

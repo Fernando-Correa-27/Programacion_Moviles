@@ -53,8 +53,6 @@ import com.tecsup.mibodega.ui.cliente.modelo.costoEntrega
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.SelectorCantidad
 import com.tecsup.mibodega.ui.theme.BodegaTheme
-import com.tecsup.mibodega.ui.theme.GrisClaro
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Pantalla 5: Mi carrito (mockup "Cliente").
@@ -200,7 +198,7 @@ private fun FilaCarrito(
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .background(GrisClaro, RoundedCornerShape(10.dp)),
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -289,7 +287,7 @@ private fun ResumenYBoton(
             Text(
                 text = "S/ %.2f".format(total),
                 style = MaterialTheme.typography.titleMedium,
-                color = VerdeBodega
+                color = MaterialTheme.colorScheme.primary
             )
         }
 

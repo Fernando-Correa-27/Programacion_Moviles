@@ -49,7 +49,10 @@ private object Rutas {
 }
 
 @Composable
-fun ClienteApp() {
+fun ClienteApp(
+    modoOscuro: Boolean = false,
+    onModoOscuroCambia: (Boolean) -> Unit = {}
+) {
     val navController = rememberNavController()
 
     // El carrito vive aquí arriba, no en ninguna Screen.
@@ -159,7 +162,9 @@ fun ClienteApp() {
                 telefono = perfilCliente[1],
                 direccion = perfilCliente[2],
                 referencia = perfilCliente[3],
-                onSeccionSeleccionada = onSeccionSeleccionada
+                onSeccionSeleccionada = onSeccionSeleccionada,
+                modoOscuro = modoOscuro,
+                onModoOscuroCambia = onModoOscuroCambia
             )
         }
 

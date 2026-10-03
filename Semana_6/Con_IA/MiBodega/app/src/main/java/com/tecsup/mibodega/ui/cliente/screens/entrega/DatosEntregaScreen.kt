@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 import com.tecsup.mibodega.ui.cliente.modelo.camposRequeridosCompletos
 import com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega
 
@@ -120,7 +119,7 @@ fun DatosEntregaScreen(
                     onClick = { metodoPago = opcion }
                 )
                 if (opcion == "Efectivo al entregar") {
-                    Icon(Icons.Default.Payments, contentDescription = null, tint = VerdeBodega)
+                    Icon(Icons.Default.Payments, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 }
                 Text(opcion, modifier = Modifier.padding(start = 10.dp))
             }

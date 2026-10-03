@@ -18,8 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tecsup.mibodega.ui.theme.GrisBorde
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 
 @Composable
@@ -74,14 +72,14 @@ private fun BotonCirculo(
         modifier = Modifier
             .size(32.dp)
             .background(
-                color = if (relleno) VerdeBodega else MaterialTheme.colorScheme.surface,
+                color = if (relleno) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                 shape = CircleShape
             )
     ) {
         val colorIcono = when {
             relleno -> MaterialTheme.colorScheme.onPrimary
-            habilitado -> VerdeBodega
-            else -> GrisBorde
+            habilitado -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.outline
         }
         Icon(
             imageVector = icono,

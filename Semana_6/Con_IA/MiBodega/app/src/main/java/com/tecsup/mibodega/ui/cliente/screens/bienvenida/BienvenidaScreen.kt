@@ -40,8 +40,6 @@ import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.BotonSecundario
 import com.tecsup.mibodega.ui.theme.AzulEnlace
 import com.tecsup.mibodega.ui.theme.BodegaTheme
-import com.tecsup.mibodega.ui.theme.FondoClaro
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 import com.tecsup.mibodega.ui.cliente.modelo.CLAVE_DEMO
 import com.tecsup.mibodega.ui.cliente.modelo.USUARIO_DEMO
 import com.tecsup.mibodega.ui.cliente.modelo.credencialesDemoValidas
@@ -65,7 +63,7 @@ fun BienvenidaScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(FondoClaro, MaterialTheme.colorScheme.background),
+                    colors = listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.background),
                     endY = 900f
                 )
             )
@@ -197,7 +195,7 @@ private fun TituloMiBodega() {
     Text(
         text = buildAnnotatedString {
             append("Mi ")
-            withStyle(SpanStyle(color = VerdeBodega)) { append("Bodega") }
+            withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append("Bodega") }
         },
         style = MaterialTheme.typography.displayMedium,
         color = MaterialTheme.colorScheme.onBackground

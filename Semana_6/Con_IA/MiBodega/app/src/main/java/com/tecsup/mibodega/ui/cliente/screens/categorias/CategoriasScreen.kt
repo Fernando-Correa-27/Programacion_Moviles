@@ -31,7 +31,6 @@ import com.tecsup.mibodega.ui.cliente.componentes.SeccionCliente
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
-import com.tecsup.mibodega.ui.theme.GrisClaro
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +75,7 @@ private fun FilaCategoria(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = GrisClaro)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 18.dp),

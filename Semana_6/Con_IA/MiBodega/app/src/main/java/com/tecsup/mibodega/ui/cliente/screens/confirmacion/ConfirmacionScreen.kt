@@ -32,10 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tecsup.mibodega.ui.theme.GrisBorde
-import com.tecsup.mibodega.ui.theme.GrisClaro
-import com.tecsup.mibodega.ui.theme.RojoPrecio
-import com.tecsup.mibodega.ui.theme.VerdeBodega
 import com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega
 
 @Composable
@@ -60,12 +56,12 @@ fun ConfirmacionScreen(
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null,
-            tint = VerdeBodega,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.height(82.dp)
         )
         Text(
             "¡Pedido realizado!",
-            color = VerdeBodega,
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -79,8 +75,8 @@ fun ConfirmacionScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(containerColor = GrisClaro),
-            border = androidx.compose.foundation.BorderStroke(1.dp, GrisBorde)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Pedido #1024", fontWeight = FontWeight.Bold)
@@ -89,7 +85,7 @@ fun ConfirmacionScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Total")
-                    Text("S/ %.2f".format(total), color = RojoPrecio, fontWeight = FontWeight.Bold)
+                    Text("S/ %.2f".format(total), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
                 }
                 if (modalidadEntrega == ModalidadEntrega.DELIVERY) {
                     Text("Entrega a", modifier = Modifier.padding(top = 10.dp))
@@ -108,8 +104,8 @@ fun ConfirmacionScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp)
         ) {
-            Icon(Icons.Default.Phone, contentDescription = null, tint = VerdeBodega)
-            Text("Ver estado del pedido", color = VerdeBodega, modifier = Modifier.padding(start = 8.dp))
+            Icon(Icons.Default.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Text("Ver estado del pedido", color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
         }
         OutlinedButton(
             onClick = onVolverInicio,

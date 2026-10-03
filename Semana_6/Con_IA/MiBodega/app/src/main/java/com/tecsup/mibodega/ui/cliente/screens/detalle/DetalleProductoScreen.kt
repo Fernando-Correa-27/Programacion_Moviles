@@ -82,7 +82,7 @@ fun DetalleProductoScreen(
             Text(
                 text = "S/ %.2f".format(producto.precio),
                 style = MaterialTheme.typography.displayMedium.copy(fontSize = 26.sp),
-                color = RojoPrecio
+                color = MaterialTheme.colorScheme.error
             )
 
             Spacer(Modifier.height(12.dp))
@@ -145,7 +145,7 @@ private fun ImagenProducto(imagenRes: Int, nombre: String) {
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.4f)
-            .background(GrisClaro),
+            .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
         Image(
