@@ -26,14 +26,7 @@ import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 
-/**
- * "Director de orquesta" de la app cliente:
- * - Tiene el NavHost con las rutas de cada pantalla.
- * - Tiene el estado del carrito (List<ItemCarrito>), que se reparte
- *   hacia abajo a Inicio, Detalle, Carrito y Entrega.
- * Ninguna Screen navega sola ni modifica el carrito directamente:
- * todas reciben funciones (lambdas) desde aquí (state hoisting).
- */
+
 private object Rutas {
     const val BIENVENIDA = "bienvenida"
     const val REGISTRO = "registro"
@@ -235,10 +228,6 @@ fun ClienteApp() {
     }
 }
 
-/**
- * Si el producto ya está en el carrito, le suma la cantidad;
- * si no, lo agrega como un ItemCarrito nuevo.
- */
 private fun agregarOSumarProducto(
     carrito: List<ItemCarrito>,
     producto: Producto,

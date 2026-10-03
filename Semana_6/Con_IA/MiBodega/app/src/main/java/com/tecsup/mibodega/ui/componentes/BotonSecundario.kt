@@ -13,10 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-/**
- * Botón blanco con borde gris. Se usa en: Bienvenida ("Iniciar sesión")
- * y Confirmación ("Volver al inicio").
- */
+
 @Composable
 fun BotonSecundario(
     texto: String,

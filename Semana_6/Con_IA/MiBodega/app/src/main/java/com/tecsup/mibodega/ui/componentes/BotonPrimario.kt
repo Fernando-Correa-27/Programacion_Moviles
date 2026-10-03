@@ -21,10 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
- * Botón verde principal de toda la app.
- * Se usa en: Bienvenida, Registro, Detalle, Carrito, Entrega.
- */
+
 @Composable
 fun BotonPrimario(
     texto: String,

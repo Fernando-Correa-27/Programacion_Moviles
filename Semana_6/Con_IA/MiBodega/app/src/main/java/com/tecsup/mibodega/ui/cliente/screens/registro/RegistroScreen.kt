@@ -38,11 +38,6 @@ import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-/**
- * Pantalla 2: Registro de datos (mockup "Cliente").
- * Guarda su propio estado de formulario (remember) porque solo esta
- * pantalla lo necesita. Al enviar, entrega los datos ya listos.
- */
 @Composable
 fun RegistroScreen(
     onVolver: () -> Unit,
@@ -144,7 +139,7 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.weight(1f, fill = false)
         )
-        Spacer(Modifier.size(48.dp)) // balancea el ancho del ícono de la izquierda
+        Spacer(Modifier.size(48.dp))
     }
     Text(
         text = "Completa tus datos para continuar",

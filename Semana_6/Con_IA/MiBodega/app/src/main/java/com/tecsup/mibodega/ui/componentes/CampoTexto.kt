@@ -14,12 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
-/**
- * Input con label arriba (fuera del recuadro), como en los mockups
- * de Registro y Datos de entrega. Se usa en: Registro, Datos de entrega.
- *
- * @param teclado tipo de teclado, ej. KeyboardType.Phone para el teléfono
- */
+
 @Composable
 fun CampoTexto(
     etiqueta: String,

@@ -21,16 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.theme.GrisBorde
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-/**
- * El "− cantidad +" reutilizable. Se usa en: Detalle del producto
- * y en cada fila del Carrito.
- *
- * No sabe nada de productos ni de carrito: solo recibe un número
- * y avisa cuándo debe subir o bajar (así no se acopla a ningún modelo
- * de datos específico, y se puede reusar en cualquier pantalla).
- *
- * @param minimo cantidad mínima permitida (por defecto 1: no deja bajar de ahí)
- */
+
 @Composable
 fun SelectorCantidad(
     cantidad: Int,
