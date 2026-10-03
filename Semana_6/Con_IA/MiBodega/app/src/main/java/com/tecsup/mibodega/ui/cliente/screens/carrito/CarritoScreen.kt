@@ -1,6 +1,7 @@
 package com.tecsup.mibodega.ui.cliente.screens.carrito
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +47,14 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
+import com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega
+import com.tecsup.mibodega.ui.cliente.modelo.calcularTotalPedido
+import com.tecsup.mibodega.ui.cliente.modelo.costoEntrega
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.SelectorCantidad
 import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
-
-private const val COSTO_DELIVERY = 4.00
 
 /**
  * Pantalla 5: Mi carrito (mockup "Cliente").
@@ -65,11 +68,14 @@ fun CarritoScreen(
     onIncrementar: (Producto) -> Unit,
     onDecrementar: (Producto) -> Unit,
     onEliminar: (Producto) -> Unit,
-    onContinuarPedido: () -> Unit
+    onContinuarPedido: () -> Unit,
+    modalidadEntrega: ModalidadEntrega = ModalidadEntrega.DELIVERY,
+    onModalidadEntregaCambia: (ModalidadEntrega) -> Unit = {}
 ) {
     var productoPendienteEliminar by remember { mutableStateOf<Producto?>(null) }
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
-    val total = subtotal + COSTO_DELIVERY
+    val delivery = costoEntrega(modalidadEntrega)
+    val total = calcularTotalPedido(subtotal, modalidadEntrega)
 
     Column(
         modifier = Modifier
@@ -126,9 +132,11 @@ fun CarritoScreen(
 
             ResumenYBoton(
                 subtotal = subtotal,
-                delivery = COSTO_DELIVERY,
+                delivery = delivery,
                 total = total,
-                onContinuarPedido = onContinuarPedido
+                onContinuarPedido = onContinuarPedido,
+                modalidadEntrega = modalidadEntrega,
+                onModalidadEntregaCambia = onModalidadEntregaCambia
             )
         }
     }
@@ -239,11 +247,34 @@ private fun ResumenYBoton(
     subtotal: Double,
     delivery: Double,
     total: Double,
-    onContinuarPedido: () -> Unit
+    onContinuarPedido: () -> Unit,
+    modalidadEntrega: ModalidadEntrega,
+    onModalidadEntregaCambia: (ModalidadEntrega) -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         FilaResumen(etiqueta = "Subtotal", valor = subtotal)
-        FilaResumen(etiqueta = "Costo de delivery", valor = delivery)
+        Text("Modalidad de entrega", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 8.dp))
+        listOf(
+            ModalidadEntrega.DELIVERY to "Delivery",
+            ModalidadEntrega.RECOJO_EN_TIENDA to "Recojo en tienda"
+        ).forEach { (opcion, etiqueta) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onModalidadEntregaCambia(opcion) },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = modalidadEntrega == opcion,
+                    onClick = { onModalidadEntregaCambia(opcion) }
+                )
+                Text(etiqueta)
+            }
+        }
+        FilaResumen(
+            etiqueta = if (modalidadEntrega == ModalidadEntrega.DELIVERY) "Costo de delivery" else "Costo de recojo",
+            valor = delivery
+        )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 

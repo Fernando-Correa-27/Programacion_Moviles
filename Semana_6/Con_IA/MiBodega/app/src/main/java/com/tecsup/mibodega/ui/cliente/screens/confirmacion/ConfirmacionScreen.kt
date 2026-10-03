@@ -36,6 +36,7 @@ import com.tecsup.mibodega.ui.theme.GrisBorde
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.RojoPrecio
 import com.tecsup.mibodega.ui.theme.VerdeBodega
+import com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega
 
 @Composable
 fun ConfirmacionScreen(
@@ -43,7 +44,8 @@ fun ConfirmacionScreen(
     nombre: String,
     direccion: String,
     referencia: String,
-    onVolverInicio: () -> Unit
+    onVolverInicio: () -> Unit,
+    modalidadEntrega: ModalidadEntrega = ModalidadEntrega.DELIVERY
 ) {
     var mostrarEstado by remember { mutableStateOf(false) }
 
@@ -89,10 +91,14 @@ fun ConfirmacionScreen(
                     Text("Total")
                     Text("S/ %.2f".format(total), color = RojoPrecio, fontWeight = FontWeight.Bold)
                 }
-                Text("Entrega a", modifier = Modifier.padding(top = 10.dp))
-                Text(nombre, fontWeight = FontWeight.Medium)
-                Text(direccion)
-                Text("($referencia)")
+                if (modalidadEntrega == ModalidadEntrega.DELIVERY) {
+                    Text("Entrega a", modifier = Modifier.padding(top = 10.dp))
+                    Text(nombre, fontWeight = FontWeight.Medium)
+                    Text(direccion)
+                    Text("($referencia)")
+                } else {
+                    Text("Recojo en tienda", modifier = Modifier.padding(top = 10.dp))
+                }
             }
         }
 

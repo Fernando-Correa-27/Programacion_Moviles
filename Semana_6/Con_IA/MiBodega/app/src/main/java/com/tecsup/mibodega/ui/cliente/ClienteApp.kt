@@ -12,6 +12,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.cantidadTotalProductos
+import com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega
+import com.tecsup.mibodega.ui.cliente.modelo.calcularTotalPedido
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
@@ -52,6 +54,7 @@ fun ClienteApp() {
 
     // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var modalidadEntrega by remember { mutableStateOf(ModalidadEntrega.DELIVERY) }
     var categoriaActual by remember { mutableStateOf(listaCategorias.first()) }
     var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
     var favoritosIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
@@ -212,22 +215,36 @@ fun ClienteApp() {
                 },
                 onContinuarPedido = {
                     if (carrito.isNotEmpty()) navController.navigate(Rutas.ENTREGA)
-                }
+                },
+                modalidadEntrega = modalidadEntrega,
+                onModalidadEntregaCambia = { modalidadEntrega = it }
             )
         }
 
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
                 onVolver = { navController.popBackStack() },
+                modalidadEntrega = modalidadEntrega,
                 onConfirmarPedido = { nombre, telefono, direccion, referencia, metodoPago ->
-                    datosPedido = listOf(nombre, telefono, direccion, referencia, metodoPago)
-                    perfilCliente = listOf(nombre, telefono, direccion, referencia)
-                    val total = carrito.sumOf { it.producto.precio * it.cantidad } + 4.0
+                    val datosCliente = if (modalidadEntrega == ModalidadEntrega.DELIVERY) {
+                        listOf(nombre, telefono, direccion, referencia)
+                    } else {
+                        perfilCliente
+                    }
+                    perfilCliente = datosCliente
+                    datosPedido = datosCliente + metodoPago
+                    val direccionPedido = if (modalidadEntrega == ModalidadEntrega.DELIVERY) {
+                        direccion
+                    } else {
+                        "Recojo en tienda"
+                    }
+                    val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
                     pedidos = pedidos + Pedido(
                         id = (pedidos.lastOrNull()?.id ?: 1023) + 1,
                         productos = carrito.toList(),
-                        total = total,
-                        direccion = direccion
+                        total = calcularTotalPedido(subtotal, modalidadEntrega),
+                        direccion = direccionPedido,
+                        modalidad = modalidadEntrega
                     )
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.CARRITO) { inclusive = true }
@@ -242,6 +259,7 @@ fun ClienteApp() {
                 nombre = datosPedido[0],
                 direccion = datosPedido[2],
                 referencia = datosPedido[3],
+                modalidadEntrega = pedidos.lastOrNull()?.modalidad ?: ModalidadEntrega.DELIVERY,
                 onVolverInicio = {
                     carrito = emptyList()
                     navController.navigate(Rutas.INICIO) {

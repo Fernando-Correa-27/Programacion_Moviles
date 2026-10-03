@@ -33,10 +33,12 @@ import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 import com.tecsup.mibodega.ui.cliente.modelo.camposRequeridosCompletos
+import com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega
 
 @Composable
 fun DatosEntregaScreen(
     onVolver: () -> Unit,
+    modalidadEntrega: ModalidadEntrega = ModalidadEntrega.DELIVERY,
     onConfirmarPedido: (String, String, String, String, String) -> Unit
 ) {
     var nombre by remember { mutableStateOf("Juan Pérez") }
@@ -64,34 +66,42 @@ fun DatosEntregaScreen(
             Text("Datos de entrega", style = MaterialTheme.typography.titleLarge)
         }
 
-        CampoTexto(
-            "Nombre",
-            nombre,
-            { nombre = it },
-            error = if (intentoConfirmar && nombre.isBlank()) "Ingresa tu nombre" else null
-        )
-        Spacer(Modifier.height(8.dp))
-        CampoTexto(
-            "Teléfono",
-            telefono,
-            { telefono = it },
-            teclado = KeyboardType.Phone,
-            error = if (intentoConfirmar && telefono.isBlank()) "Ingresa tu teléfono" else null
-        )
-        Spacer(Modifier.height(8.dp))
-        CampoTexto(
-            "Dirección",
-            direccion,
-            { direccion = it },
-            error = if (intentoConfirmar && direccion.isBlank()) "Ingresa tu dirección" else null
-        )
-        Spacer(Modifier.height(8.dp))
-        CampoTexto(
-            "Referencia",
-            referencia,
-            { referencia = it },
-            error = if (intentoConfirmar && referencia.isBlank()) "Ingresa una referencia" else null
-        )
+        if (modalidadEntrega == ModalidadEntrega.DELIVERY) {
+            CampoTexto(
+                "Nombre",
+                nombre,
+                { nombre = it },
+                error = if (intentoConfirmar && nombre.isBlank()) "Ingresa tu nombre" else null
+            )
+            Spacer(Modifier.height(8.dp))
+            CampoTexto(
+                "Teléfono",
+                telefono,
+                { telefono = it },
+                teclado = KeyboardType.Phone,
+                error = if (intentoConfirmar && telefono.isBlank()) "Ingresa tu teléfono" else null
+            )
+            Spacer(Modifier.height(8.dp))
+            CampoTexto(
+                "Dirección",
+                direccion,
+                { direccion = it },
+                error = if (intentoConfirmar && direccion.isBlank()) "Ingresa tu dirección" else null
+            )
+            Spacer(Modifier.height(8.dp))
+            CampoTexto(
+                "Referencia",
+                referencia,
+                { referencia = it },
+                error = if (intentoConfirmar && referencia.isBlank()) "Ingresa una referencia" else null
+            )
+        } else {
+            Text(
+                "Recogerás tu pedido en la tienda. No necesitamos datos de dirección.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 14.dp)
+            )
+        }
 
         Text(
             "Método de pago",
@@ -121,8 +131,15 @@ fun DatosEntregaScreen(
             texto = "Confirmar pedido",
             onClick = {
                 intentoConfirmar = true
-                if (camposRequeridosCompletos(nombre, telefono, direccion, referencia)) {
-                    onConfirmarPedido(nombre.trim(), telefono.trim(), direccion.trim(), referencia.trim(), metodoPago)
+                val datosValidos = modalidadEntrega == ModalidadEntrega.RECOJO_EN_TIENDA ||
+                    camposRequeridosCompletos(nombre, telefono, direccion, referencia)
+                if (datosValidos) {
+                    val datos = if (modalidadEntrega == ModalidadEntrega.DELIVERY) {
+                        listOf(nombre.trim(), telefono.trim(), direccion.trim(), referencia.trim())
+                    } else {
+                        listOf("", "", "", "")
+                    }
+                    onConfirmarPedido(datos[0], datos[1], datos[2], datos[3], metodoPago)
                 }
             }
         )

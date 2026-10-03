@@ -5,5 +5,6 @@ data class Pedido(
     val productos: List<ItemCarrito>,
     val total: Double,
     val direccion: String,
+    val modalidad: ModalidadEntrega = ModalidadEntrega.DELIVERY,
     val fechaMillis: Long = System.currentTimeMillis()
 )

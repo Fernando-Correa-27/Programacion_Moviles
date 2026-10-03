@@ -116,7 +116,11 @@ fun PedidosScreen(
                                 Text("S/ %.2f".format(pedido.total), fontWeight = FontWeight.SemiBold)
                             }
                             Text(
-                                "Entrega en ${pedido.direccion}",
+                                if (pedido.modalidad == com.tecsup.mibodega.ui.cliente.modelo.ModalidadEntrega.DELIVERY) {
+                                    "Delivery en ${pedido.direccion}"
+                                } else {
+                                    "Recojo en tienda"
+                                },
                                 modifier = Modifier.padding(top = 6.dp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
