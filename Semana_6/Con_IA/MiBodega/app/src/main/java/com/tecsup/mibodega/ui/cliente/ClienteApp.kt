@@ -27,6 +27,7 @@ import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
+import com.tecsup.mibodega.ui.cliente.screens.favoritos.FavoritosScreen
 
 
 private object Rutas {
@@ -40,6 +41,7 @@ private object Rutas {
     const val CATEGORIAS = "categorias"
     const val PEDIDOS = "pedidos"
     const val PERFIL = "perfil"
+    const val FAVORITOS = "favoritos"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
@@ -52,6 +54,7 @@ fun ClienteApp() {
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var categoriaActual by remember { mutableStateOf(listaCategorias.first()) }
     var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
+    var favoritosIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
     var perfilCliente by remember {
         mutableStateOf(listOf("Juan Pérez", "987 654 321", "Av. Los Olivos 123", "Frente al parque"))
     }
@@ -117,7 +120,10 @@ fun ClienteApp() {
                 },
                 categoriaSeleccionada = categoriaActual,
                 onCategoriaSeleccionada = { categoriaActual = it },
-                onSeccionSeleccionada = onSeccionSeleccionada
+                onSeccionSeleccionada = onSeccionSeleccionada,
+                favoritos = favoritosIds,
+                onCambiarFavorito = { favoritosIds = alternarFavorito(favoritosIds, it.id) },
+                onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) }
             )
         }
 
@@ -154,6 +160,16 @@ fun ClienteApp() {
             )
         }
 
+        composable(Rutas.FAVORITOS) {
+            FavoritosScreen(
+                productos = listaProductosFake.filter { it.id in favoritosIds },
+                onVolver = { navController.popBackStack() },
+                onProductoClick = { navController.navigate(Rutas.detalle(it.id)) },
+                onAgregarProducto = { carrito = agregarOSumarProducto(carrito, it, 1) },
+                onQuitarFavorito = { favoritosIds = favoritosIds - it.id }
+            )
+        }
+
         composable(
             route = Rutas.DETALLE,
             arguments = listOf(navArgument("productoId") { type = NavType.IntType })
@@ -164,6 +180,8 @@ fun ClienteApp() {
             DetalleProductoScreen(
                 producto = producto,
                 onVolver = { navController.popBackStack() },
+                esFavorito = producto.id in favoritosIds,
+                onCambiarFavorito = { favoritosIds = alternarFavorito(favoritosIds, producto.id) },
                 onAgregarAlCarrito = { productoSeleccionado, cantidad ->
                     carrito = agregarOSumarProducto(carrito, productoSeleccionado, cantidad)
                     navController.popBackStack()
@@ -235,6 +253,9 @@ fun ClienteApp() {
         }
     }
 }
+
+private fun alternarFavorito(actuales: Set<Int>, productoId: Int): Set<Int> =
+    if (productoId in actuales) actuales - productoId else actuales + productoId
 
 private fun agregarOSumarProducto(
     carrito: List<ItemCarrito>,

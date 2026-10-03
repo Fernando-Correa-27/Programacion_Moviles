@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,7 +65,10 @@ fun InicioScreen(
     onAgregarProducto: (Producto) -> Unit,
     categoriaSeleccionada: String = listaCategorias.first(),
     onCategoriaSeleccionada: (String) -> Unit = {},
-    onSeccionSeleccionada: (SeccionCliente) -> Unit = {}
+    onSeccionSeleccionada: (SeccionCliente) -> Unit = {},
+    favoritos: Set<Int> = emptySet(),
+    onCambiarFavorito: (Producto) -> Unit = {},
+    onVerFavoritos: () -> Unit = {}
 ) {
     var textoBusqueda by remember { mutableStateOf("") }
 
@@ -87,6 +91,9 @@ fun InicioScreen(
                     )
                 },
                 actions = {
+                    IconButton(onClick = onVerFavoritos) {
+                        Icon(Icons.Default.FavoriteBorder, contentDescription = "Favoritos")
+                    }
                     IconButton(onClick = onVerCarrito) {
                         BadgedBox(
                             badge = {
@@ -159,7 +166,9 @@ fun InicioScreen(
                     ProductoCard(
                         producto = producto,
                         onClick = { onProductoClick(producto) },
-                        onAgregar = { onAgregarProducto(producto) }
+                        onAgregar = { onAgregarProducto(producto) },
+                        esFavorito = producto.id in favoritos,
+                        onCambiarFavorito = { onCambiarFavorito(producto) }
                     )
                 }
             }

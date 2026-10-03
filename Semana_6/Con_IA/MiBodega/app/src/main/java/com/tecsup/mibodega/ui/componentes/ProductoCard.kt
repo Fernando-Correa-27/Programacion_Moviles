@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -41,6 +43,8 @@ fun ProductoCard(
     producto: Producto,
     onClick: () -> Unit,
     onAgregar: () -> Unit,
+    esFavorito: Boolean = false,
+    onCambiarFavorito: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -64,6 +68,20 @@ fun ProductoCard(
                     modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)),
                     contentScale = ContentScale.Fit
                 )
+                IconButton(
+                    onClick = onCambiarFavorito,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(36.dp)
+                        .background(MaterialTheme.colorScheme.surface, CircleShape)
+                ) {
+                    Icon(
+                        imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = if (esFavorito) "Quitar ${producto.nombre} de favoritos" else "Agregar ${producto.nombre} a favoritos",
+                        tint = if (esFavorito) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
 
             Spacer(Modifier.height(8.dp))
