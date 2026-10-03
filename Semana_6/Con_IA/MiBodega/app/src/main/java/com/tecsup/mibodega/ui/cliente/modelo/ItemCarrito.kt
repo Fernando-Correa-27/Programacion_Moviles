@@ -5,3 +5,6 @@ data class ItemCarrito(
     val cantidad: Int
 )
 
+fun List<ItemCarrito>.cantidadTotalProductos(): Int =
+    sumOf { it.cantidad.coerceAtLeast(0) }
+

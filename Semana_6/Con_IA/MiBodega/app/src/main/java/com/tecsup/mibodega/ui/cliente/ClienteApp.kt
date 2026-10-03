@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
+import com.tecsup.mibodega.ui.cliente.modelo.cantidadTotalProductos
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
@@ -106,7 +107,7 @@ fun ClienteApp() {
 
         composable(Rutas.INICIO) {
             InicioScreen(
-                cantidadCarrito = carrito.sumOf { it.cantidad },
+                cantidadCarrito = carrito.cantidadTotalProductos(),
                 onVerCarrito = { navController.navigate(Rutas.CARRITO) },
                 onProductoClick = { producto ->
                     navController.navigate(Rutas.detalle(producto.id))
