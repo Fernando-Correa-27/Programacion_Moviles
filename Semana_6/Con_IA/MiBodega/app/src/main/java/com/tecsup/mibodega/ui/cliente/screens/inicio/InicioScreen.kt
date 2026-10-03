@@ -18,6 +18,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Cookie
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
@@ -124,15 +127,9 @@ fun InicioScreen(
                 )
             )
 
-            Text(
-                text = "Productos destacados",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp, bottom = 4.dp)
-            )
-
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                contentPadding = PaddingValues(vertical = 10.dp)
             ) {
                 items(listaCategorias) { categoria ->
                     ChipCategoria(
@@ -142,6 +139,12 @@ fun InicioScreen(
                     )
                 }
             }
+
+            Text(
+                text = "Productos destacados",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+            )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -172,13 +175,21 @@ private fun ChipCategoria(
 ) {
     val fondo = if (seleccionado) VerdeBodega else GrisClaro
     val contenido = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    val icono = when (texto) {
+        "Bebidas" -> Icons.Default.LocalDrink
+        "Abarrotes" -> Icons.Default.Inventory2
+        "Snacks" -> Icons.Default.Cookie
+        else -> Icons.Default.ShoppingCart
+    }
 
     Row(
         modifier = Modifier
-            .background(fondo, RoundedCornerShape(20.dp))
+            .background(fondo, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 9.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
+        Icon(icono, contentDescription = null, tint = contenido, modifier = Modifier.padding(end = 5.dp))
         Text(text = texto, color = contenido, fontWeight = FontWeight.Medium)
     }
 }

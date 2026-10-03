@@ -15,7 +15,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material.icons.filled.Cookie
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -47,7 +49,7 @@ fun ProductoCard(
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
@@ -57,12 +59,17 @@ fun ProductoCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.3f)
+                    .aspectRatio(1.45f)
                     .background(GrisClaro, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
+                val icono = when (producto.categoria) {
+                    "Bebidas" -> Icons.Default.LocalDrink
+                    "Snacks" -> Icons.Default.Cookie
+                    else -> Icons.Default.Inventory2
+                }
                 Icon(
-                    imageVector = Icons.Default.ShoppingBasket,
+                    imageVector = icono,
                     contentDescription = producto.nombre,
                     tint = VerdeBodega,
                     modifier = Modifier.size(36.dp)
