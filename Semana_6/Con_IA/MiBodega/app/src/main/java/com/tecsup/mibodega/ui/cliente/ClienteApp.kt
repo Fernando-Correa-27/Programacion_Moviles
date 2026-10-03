@@ -12,9 +12,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
+import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
+import com.tecsup.mibodega.ui.cliente.componentes.SeccionCliente
 import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
+import com.tecsup.mibodega.ui.cliente.screens.categorias.CategoriasScreen
+import com.tecsup.mibodega.ui.cliente.screens.pedidos.PedidosScreen
+import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
@@ -37,6 +42,9 @@ private object Rutas {
     const val CARRITO = "carrito"
     const val ENTREGA = "entrega"
     const val CONFIRMACION = "confirmacion"
+    const val CATEGORIAS = "categorias"
+    const val PEDIDOS = "pedidos"
+    const val PERFIL = "perfil"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
@@ -47,8 +55,30 @@ fun ClienteApp() {
 
     // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var categoriaActual by remember { mutableStateOf(listaCategorias.first()) }
+    var pedidoConfirmado by remember { mutableStateOf(false) }
+    var totalUltimoPedido by remember { mutableStateOf(0.0) }
+    var perfilCliente by remember {
+        mutableStateOf(listOf("Juan Pérez", "987 654 321", "Av. Los Olivos 123", "Frente al parque"))
+    }
     var datosPedido by remember {
         mutableStateOf(listOf("Juan Pérez", "987 654 321", "Av. Los Olivos 123", "Frente al parque", "Efectivo al entregar"))
+    }
+    val onSeccionSeleccionada: (SeccionCliente) -> Unit = { seccion ->
+        val ruta = when (seccion) {
+            SeccionCliente.INICIO -> Rutas.INICIO
+            SeccionCliente.CATEGORIAS -> Rutas.CATEGORIAS
+            SeccionCliente.PEDIDOS -> Rutas.PEDIDOS
+            SeccionCliente.PERFIL -> Rutas.PERFIL
+        }
+        if (seccion == SeccionCliente.INICIO) {
+            navController.popBackStack(Rutas.INICIO, false)
+        } else {
+            navController.navigate(ruta) {
+                popUpTo(Rutas.INICIO) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
     }
 
     NavHost(
@@ -67,6 +97,8 @@ fun ClienteApp() {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
                 onCrearCuenta = { nombre, telefono, direccion, referencia ->
+                    perfilCliente = listOf(nombre, telefono, direccion, referencia)
+                    datosPedido = listOf(nombre, telefono, direccion, referencia, "Efectivo al entregar")
                     // TODO: guardar estos datos cuando exista el registro real
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
@@ -84,7 +116,45 @@ fun ClienteApp() {
                 },
                 onAgregarProducto = { producto ->
                     carrito = agregarOSumarProducto(carrito, producto, 1)
-                }
+                },
+                categoriaSeleccionada = categoriaActual,
+                onCategoriaSeleccionada = { categoriaActual = it },
+                onSeccionSeleccionada = onSeccionSeleccionada
+            )
+        }
+
+        composable(Rutas.CATEGORIAS) {
+            CategoriasScreen(
+                onCategoriaSeleccionada = { categoria ->
+                    categoriaActual = categoria
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.INICIO) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onSeccionSeleccionada = onSeccionSeleccionada
+            )
+        }
+
+        composable(Rutas.PEDIDOS) {
+            PedidosScreen(
+                pedidoConfirmado = pedidoConfirmado,
+                total = totalUltimoPedido,
+                direccion = datosPedido[2],
+                onIrAlCatalogo = {
+                    navController.popBackStack(Rutas.INICIO, false)
+                },
+                onSeccionSeleccionada = onSeccionSeleccionada
+            )
+        }
+
+        composable(Rutas.PERFIL) {
+            PerfilScreen(
+                nombre = perfilCliente[0],
+                telefono = perfilCliente[1],
+                direccion = perfilCliente[2],
+                referencia = perfilCliente[3],
+                onSeccionSeleccionada = onSeccionSeleccionada
             )
         }
 
@@ -137,6 +207,9 @@ fun ClienteApp() {
                 onVolver = { navController.popBackStack() },
                 onConfirmarPedido = { nombre, telefono, direccion, referencia, metodoPago ->
                     datosPedido = listOf(nombre, telefono, direccion, referencia, metodoPago)
+                    perfilCliente = listOf(nombre, telefono, direccion, referencia)
+                    totalUltimoPedido = carrito.sumOf { it.producto.precio * it.cantidad } + 4.0
+                    pedidoConfirmado = true
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.CARRITO) { inclusive = true }
                     }
@@ -146,7 +219,7 @@ fun ClienteApp() {
 
         composable(Rutas.CONFIRMACION) {
             ConfirmacionScreen(
-                total = carrito.sumOf { it.producto.precio * it.cantidad } + 4.0,
+                total = totalUltimoPedido,
                 nombre = datosPedido[0],
                 direccion = datosPedido[2],
                 referencia = datosPedido[3],
