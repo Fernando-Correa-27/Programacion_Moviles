@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +50,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
+import com.tecsup.mibodega.ui.cliente.modelo.OrdenPrecio
+import com.tecsup.mibodega.ui.cliente.modelo.ordenarPorPrecio
 import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.componentes.BarraNavegacionCliente
@@ -71,12 +76,15 @@ fun InicioScreen(
     onVerFavoritos: () -> Unit = {}
 ) {
     var textoBusqueda by remember { mutableStateOf("") }
+    var menuOrdenAbierto by remember { mutableStateOf(false) }
+    var ordenPrecio by rememberSaveable { mutableStateOf(OrdenPrecio.RECOMENDADOS) }
 
     val productosFiltrados = productos.filter { producto ->
         val coincideCategoria = categoriaSeleccionada == "Todos" || producto.categoria == categoriaSeleccionada
         val coincideBusqueda = producto.nombre.contains(textoBusqueda, ignoreCase = true)
         coincideCategoria && coincideBusqueda
     }
+    val productosVisibles = ordenarPorPrecio(productosFiltrados, ordenPrecio)
 
     Scaffold(
         topBar = {
@@ -149,6 +157,34 @@ fun InicioScreen(
                 }
             }
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                androidx.compose.material3.TextButton(onClick = { menuOrdenAbierto = true }) {
+                    Text("Ordenar: ${ordenPrecio.etiqueta()}")
+                }
+                DropdownMenu(
+                    expanded = menuOrdenAbierto,
+                    onDismissRequest = { menuOrdenAbierto = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Menor a mayor") },
+                        onClick = {
+                            ordenPrecio = OrdenPrecio.MENOR_A_MAYOR
+                            menuOrdenAbierto = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Mayor a menor") },
+                        onClick = {
+                            ordenPrecio = OrdenPrecio.MAYOR_A_MENOR
+                            menuOrdenAbierto = false
+                        }
+                    )
+                }
+            }
+
             Text(
                 text = "Productos destacados",
                 style = MaterialTheme.typography.titleMedium,
@@ -162,7 +198,7 @@ fun InicioScreen(
                 contentPadding = PaddingValues(vertical = 12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(productosFiltrados) { producto ->
+                items(productosVisibles) { producto ->
                     ProductoCard(
                         producto = producto,
                         onClick = { onProductoClick(producto) },
@@ -174,6 +210,12 @@ fun InicioScreen(
             }
         }
     }
+}
+
+private fun OrdenPrecio.etiqueta(): String = when (this) {
+    OrdenPrecio.RECOMENDADOS -> "Recomendados"
+    OrdenPrecio.MENOR_A_MAYOR -> "Menor a mayor"
+    OrdenPrecio.MAYOR_A_MENOR -> "Mayor a menor"
 }
 
 @Composable
