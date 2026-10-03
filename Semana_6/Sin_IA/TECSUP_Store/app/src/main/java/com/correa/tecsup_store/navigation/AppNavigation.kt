@@ -72,7 +72,6 @@ fun AppNavigation(estado: TiendaEstado) {
         }
     }
 
-    // ModalNavigationDrawer envuelve al Scaffold existente sin romperlo
     TiendaNavigationDrawer(
         drawerState = drawerState,
         rutaActual = rutaActual,
@@ -80,7 +79,6 @@ fun AppNavigation(estado: TiendaEstado) {
         totalFavoritos = estado.favoritos.size,
         onNavegar = { seccion ->
             navController.navigate(seccion.route) {
-                // Evita apilar la misma seccion varias veces
                 popUpTo(Screen.Home.route) { saveState = true }
                 launchSingleTop = true
                 restoreState = true
@@ -101,7 +99,6 @@ fun AppNavigation(estado: TiendaEstado) {
                     )
                 },
                 actions = {
-                    // Badge con las unidades que hay en el carrito
                     BadgedBox(
                         badge = {
                             if (estado.unidadesEnCarrito > 0) {

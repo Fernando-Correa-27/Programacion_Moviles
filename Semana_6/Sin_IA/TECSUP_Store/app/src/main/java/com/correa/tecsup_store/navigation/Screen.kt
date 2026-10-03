@@ -7,10 +7,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
-/**
- * Contrato central de navegación, adaptado del Laboratorio 5 (NavLab).
- * Cada subsección de la tienda es una ruta declarada aquí.
- */
 sealed class Screen(val route: String, val titulo: String, val icono: ImageVector) {
 
     object Home : Screen(route = "home", titulo = "Inicio", icono = Icons.Default.Home)
@@ -27,7 +23,6 @@ sealed class Screen(val route: String, val titulo: String, val icono: ImageVecto
     }
 
     companion object {
-        /** Secciones que se muestran dentro del NavigationDrawer. */
-        val seccionesDelDrawer = listOf(Home, Cart, Favorites, Profile)
+        val seccionesDelDrawer get() = listOf(Home, Cart, Favorites, Profile)
     }
 }

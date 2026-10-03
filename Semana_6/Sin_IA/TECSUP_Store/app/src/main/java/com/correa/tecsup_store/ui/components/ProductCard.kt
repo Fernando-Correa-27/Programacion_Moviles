@@ -32,13 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.correa.tecsup_store.model.CatalogoTienda
 import com.correa.tecsup_store.model.Producto
 
-/**
- * Tarjeta de producto heredada del Laboratorio 4, adaptada al catalogo
- * de la TECSUP Store.
- */
 @Composable
 fun ProductCard(
     producto: Producto,
@@ -51,8 +47,6 @@ fun ProductCard(
     onAlternarFavorito: () -> Unit = {},
     onEliminar: () -> Unit = {}
 ) {
-    // El estado de expansion vive en la pantalla padre: asi el menu queda
-    // asociado a un solo producto a la vez.
     fun cerrarMenu() = onToggleMenu()
 
     Box(modifier = modifier) {
@@ -72,10 +66,11 @@ fun ProductCard(
                     color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier.size(56.dp)
                 ) {
-                    Text(
-                        text = producto.emoji,
-                        fontSize = 26.sp,
-                        modifier = Modifier.padding(10.dp)
+                    Icon(
+                        imageVector = CatalogoTienda.obtenerIconoCategoria(producto.categoria),
+                        contentDescription = producto.categoria,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(14.dp)
                     )
                 }
 
@@ -126,7 +121,6 @@ fun ProductCard(
         shape = RoundedCornerShape(14.dp),
         containerColor = MaterialTheme.colorScheme.surface
     ) {
-        // Encabezado del menu: identifica a que producto pertenece
         Text(
             text = producto.nombre,
             style = MaterialTheme.typography.labelSmall,
@@ -162,7 +156,6 @@ fun ProductCard(
             }
         )
 
-        // Separador entre el bloque de acciones y el bloque de edicion
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
         DropdownMenuItem(

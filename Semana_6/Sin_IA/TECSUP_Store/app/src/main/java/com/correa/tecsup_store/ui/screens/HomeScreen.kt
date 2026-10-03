@@ -48,7 +48,6 @@ fun HomeScreen(
 ) {
     var categoriaSeleccionada by remember { mutableStateOf("Todos") }
 
-    // Un unico producto puede tener su menu contextual abierto a la vez
     var productoConMenu by remember { mutableStateOf<Producto?>(null) }
 
     val productosFiltrados = remember(categoriaSeleccionada) {
@@ -61,7 +60,6 @@ fun HomeScreen(
 
     Column(modifier = modifier.fillMaxSize()) {
 
-        // LazyRow de categorias
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -89,7 +87,6 @@ fun HomeScreen(
             }
         }
 
-        // LazyColumn con las secciones de productos
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),

@@ -30,10 +30,7 @@ import com.correa.tecsup_store.data.TiendaEstado
 import com.correa.tecsup_store.model.Producto
 import com.correa.tecsup_store.ui.components.ProductCard
 
-/**
- * Pantalla de carrito portada del Laboratorio 4: conserva el calculo de
- * subtotal, IGV y el descuento por tramos.
- */
+
 @Composable
 fun CartScreen(
     estado: TiendaEstado,

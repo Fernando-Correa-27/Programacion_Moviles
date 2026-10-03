@@ -35,11 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.correa.tecsup_store.navigation.Screen
 
-/**
- * NavigationDrawer principal: ModalNavigationDrawer envuelve al Scaffold
- * existente y la hoja contiene el encabezado de usuario y las secciones
- * de la tienda.
- */
 @Composable
 fun TiendaNavigationDrawer(
     drawerState: DrawerState,
@@ -55,7 +50,6 @@ fun TiendaNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet {
 
-                // Encabezado de usuario
                 EncabezadoUsuario()
 
                 Text(
@@ -135,7 +129,8 @@ private fun EncabezadoUsuario() {
                 modifier = Modifier.size(54.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.AccountCircle,                    contentDescription = "Avatar de usuario",
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Avatar de usuario",
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.padding(10.dp)
                 )

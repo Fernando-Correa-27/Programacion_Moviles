@@ -5,9 +5,7 @@ plugins {
 
 android {
     namespace = "com.correa.tecsup_store"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.correa.tecsup_store"

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -33,8 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.correa.tecsup_store.data.TiendaEstado
+import com.correa.tecsup_store.model.CatalogoTienda
 import com.correa.tecsup_store.model.Producto
 
 @Composable
@@ -61,7 +62,18 @@ fun ProductDetailScreen(
                 modifier = Modifier.fillMaxWidth().padding(22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = producto.emoji, fontSize = 56.sp)
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(72.dp)
+                ) {
+                    Icon(
+                        imageVector = CatalogoTienda.obtenerIconoCategoria(producto.categoria),
+                        contentDescription = producto.categoria,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(18.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = producto.nombre,

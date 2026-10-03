@@ -5,13 +5,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.correa.tecsup_store.model.Producto
-
-/**
- * Estado compartido de la tienda. Reúne la lógica de carrito y favoritos que
- * venía suelta dentro de la PantallaCarrito del Laboratorio 4, pero ahora
- * vive por encima de la navegación para poder ser consumido desde el catálogo,
- * el carrito y el NavigationDrawer.
- */
 class TiendaEstado {
 
     val carrito = mutableStateListOf<Producto>()
