@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.cantidadTotalProductos
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
+import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.componentes.SeccionCliente
@@ -50,8 +51,7 @@ fun ClienteApp() {
     // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var categoriaActual by remember { mutableStateOf(listaCategorias.first()) }
-    var pedidoConfirmado by remember { mutableStateOf(false) }
-    var totalUltimoPedido by remember { mutableStateOf(0.0) }
+    var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
     var perfilCliente by remember {
         mutableStateOf(listOf("Juan Pérez", "987 654 321", "Av. Los Olivos 123", "Frente al parque"))
     }
@@ -136,9 +136,7 @@ fun ClienteApp() {
 
         composable(Rutas.PEDIDOS) {
             PedidosScreen(
-                pedidoConfirmado = pedidoConfirmado,
-                total = totalUltimoPedido,
-                direccion = datosPedido[2],
+                pedidos = pedidos,
                 onIrAlCatalogo = {
                     navController.popBackStack(Rutas.INICIO, false)
                 },
@@ -206,8 +204,13 @@ fun ClienteApp() {
                 onConfirmarPedido = { nombre, telefono, direccion, referencia, metodoPago ->
                     datosPedido = listOf(nombre, telefono, direccion, referencia, metodoPago)
                     perfilCliente = listOf(nombre, telefono, direccion, referencia)
-                    totalUltimoPedido = carrito.sumOf { it.producto.precio * it.cantidad } + 4.0
-                    pedidoConfirmado = true
+                    val total = carrito.sumOf { it.producto.precio * it.cantidad } + 4.0
+                    pedidos = pedidos + Pedido(
+                        id = (pedidos.lastOrNull()?.id ?: 1023) + 1,
+                        productos = carrito.toList(),
+                        total = total,
+                        direccion = direccion
+                    )
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.CARRITO) { inclusive = true }
                     }
@@ -217,7 +220,7 @@ fun ClienteApp() {
 
         composable(Rutas.CONFIRMACION) {
             ConfirmacionScreen(
-                total = totalUltimoPedido,
+                total = pedidos.lastOrNull()?.total ?: 0.0,
                 nombre = datosPedido[0],
                 direccion = datosPedido[2],
                 referencia = datosPedido[3],
