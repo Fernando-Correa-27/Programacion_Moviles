@@ -5,6 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.tween
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -86,7 +91,19 @@ fun ClienteApp(
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.BIENVENIDA
+        startDestination = Rutas.BIENVENIDA,
+        enterTransition = {
+            fadeIn(tween(220)) + slideInHorizontally(tween(220)) { it / 12 }
+        },
+        exitTransition = {
+            fadeOut(tween(180)) + slideOutHorizontally(tween(180)) { -it / 24 }
+        },
+        popEnterTransition = {
+            fadeIn(tween(220)) + slideInHorizontally(tween(220)) { -it / 12 }
+        },
+        popExitTransition = {
+            fadeOut(tween(180)) + slideOutHorizontally(tween(180)) { it / 24 }
+        }
     ) {
         composable(Rutas.BIENVENIDA) {
             BienvenidaScreen(
