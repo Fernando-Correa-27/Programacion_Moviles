@@ -54,13 +54,15 @@ La aplicación consulta el rol después de autenticar. Solo el valor `admin` con
 - Panel Admin protegido por rol, con totales, sincronización y limpieza de caché.
 - Notificación local al sincronizar. En Android 13 o superior, el sistema solicita el permiso; si se deniega, el resto de la aplicación sigue disponible.
 
-## Capturas
+## Capturas de pantalla
 
-Las capturas deben tomarse de la aplicación ejecutándose en un emulador o dispositivo real. Se esperan `docs/capturas/login.png`, `lista.png`, `detalle.png`, `favoritos.png`, `admin.png` y `notificacion.png`. Aún no se han agregado capturas porque esta sesión no tiene emulador ni dispositivo ADB disponible.
+| Login | Lista | Detalle |
+|:-----:|:-----:|:-------:|
+| <img src="docs/capturas/login.png" width="200"> | <img src="docs/capturas/lista.png" width="200"> | <img src="docs/capturas/detalle.png" width="200"> |
 
-## Trabajo y uso de IA
-
-Trabajo individual. Se usó asistencia de IA en las dos fases del laboratorio, conforme a la autorización docente indicada en la guía. La fase 1 se desarrolló en `Sin_IA` por ser la rama indicada para esa etapa; las pruebas, mejoras y consultas de la fase 2 se registran en `PROMPTS.md`.
+| Favoritos | Notificación | Panel admin |
+|:---------:|:------------:|:-----------:|
+| <img src="docs/capturas/favoritos.png" width="200"> | <img src="docs/capturas/notificacion.png" width="200"> | <img src="docs/capturas/panel_admin.png" width="200"> |
 
 ## Privacidad del repositorio
 
