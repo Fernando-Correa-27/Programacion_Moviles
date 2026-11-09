@@ -14,7 +14,13 @@ fun ItemDto.aEntity(esFavorito: Boolean = false, incluirDetalle: Boolean = false
 )
 
 fun ItemEntity.aModelo() = Item(
-    id = id, titulo = titulo, subtitulo = "$especie · $estado", imagenUrl = imagenUrl,
+    id = id, titulo = titulo, subtitulo = "$especie · ${estadoEnEspanol(estado)}", imagenUrl = imagenUrl,
     esFavorito = esFavorito, genero = genero, origen = origen,
     ubicacion = ubicacion, cantidadEpisodios = cantidadEpisodios
 )
+
+private fun estadoEnEspanol(estado: String) = when (estado.lowercase()) {
+    "alive" -> "Vivo"
+    "dead" -> "Muerto"
+    else -> "Desconocido"
+}

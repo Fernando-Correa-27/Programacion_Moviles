@@ -48,7 +48,13 @@ fun ItemCard(item: Item, alAbrir: () -> Unit, alAlternarFavorito: () -> Unit) {
                 Spacer(Modifier.height(4.dp))
                 Text(item.subtitulo, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
-                Text("Vivo", color = Color(0xFF16834A), style = MaterialTheme.typography.labelMedium)
+                val estado = item.subtitulo.substringAfter("·", "").trim()
+                val colorEstado = when (estado.lowercase()) {
+                    "vivo", "alive" -> Color(0xFF16834A)
+                    "muerto", "dead" -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.tertiary
+                }
+                Text(estado, color = colorEstado, style = MaterialTheme.typography.labelMedium)
             }
             IconButton(onClick = alAlternarFavorito, modifier = Modifier.semantics {
                 contentDescription = if (item.esFavorito) "Quitar ${item.titulo} de favoritos" else "Agregar ${item.titulo} a favoritos"
