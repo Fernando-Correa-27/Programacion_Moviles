@@ -18,3 +18,4 @@ app/google-services.json
 **/.idea/
 local.properties
 google-services.json
+gradle/gradle-daemon-jvm.properties
