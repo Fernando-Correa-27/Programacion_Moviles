@@ -15,7 +15,8 @@ Aplicación Android para consultar personajes vivos de Rick and Morty. El catál
 1. Abre este directorio en Android Studio y usa JDK 17 o el JDK configurado por Android Studio.
 2. Descarga el archivo `google-services.json` de la aplicación Android de Firebase y guárdalo en `app/google-services.json`. El archivo está ignorado por Git y no se distribuye con el repositorio.
 3. Sincroniza Gradle y ejecuta `gradlew.bat clean assembleDebug` en Windows (o `./gradlew clean assembleDebug` en macOS/Linux).
-4. Instala `app/build/outputs/apk/debug/app-debug.apk` en un emulador con Google Play o en un dispositivo compatible.
+4. Para ejecutar las pruebas unitarias, ejecuta `gradlew.bat testDebugUnitTest` (o `./gradlew testDebugUnitTest`).
+5. Instala `app/build/outputs/apk/debug/app-debug.apk` en un emulador con Google Play o en un dispositivo compatible.
 
 El `applicationId` y el `namespace` son `com.tecsup.rickandmorty`; el paquete Android registrado en Firebase debe coincidir.
 
@@ -53,13 +54,15 @@ La aplicación consulta el rol después de autenticar. Solo el valor `admin` con
 - Panel Admin protegido por rol, con totales, sincronización y limpieza de caché.
 - Notificación local al sincronizar. En Android 13 o superior, el sistema solicita el permiso; si se deniega, el resto de la aplicación sigue disponible.
 
-## Capturas
+## Capturas de pantalla
 
-Las capturas deben tomarse de la aplicación ejecutándose en un emulador o dispositivo real. Se esperan `docs/capturas/login.png`, `lista.png`, `detalle.png`, `favoritos.png`, `admin.png` y `notificacion.png`. Aún no se han agregado capturas porque esta sesión no tiene emulador ni dispositivo ADB disponible.
+| Login | Lista | Detalle |
+|:-----:|:-----:|:-------:|
+| <img src="docs/capturas/login.png" width="200"> | <img src="docs/capturas/lista.png" width="200"> | <img src="docs/capturas/detalle.png" width="200"> |
 
-## Trabajo y uso de IA
-
-Trabajo individual. Se usó asistencia de IA en las dos fases del laboratorio, conforme a la autorización docente indicada en la guía. La fase 1 se desarrolló en `Sin_IA` por ser la rama indicada para esa etapa; la fase 2 y sus consultas se registran en `PROMPTS.md`.
+| Favoritos | Notificación | Panel admin |
+|:---------:|:------------:|:-----------:|
+| <img src="docs/capturas/favoritos.png" width="200"> | <img src="docs/capturas/notificacion.png" width="200"> | <img src="docs/capturas/panel_admin.png" width="200"> |
 
 ## Privacidad del repositorio
 
