@@ -17,6 +17,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.tecsup.rickandmorty.domain.model.Item
 import com.tecsup.rickandmorty.ui.UiState
@@ -40,7 +43,7 @@ fun ListaScreen(
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             avisoSinConexion?.let {
-                Text(it, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), color = MaterialTheme.colorScheme.error)
+                Text(it, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp).semantics { liveRegion = LiveRegionMode.Polite }, color = MaterialTheme.colorScheme.error)
             }
             when (estado) {
                 UiState.Cargando -> Cargando(Modifier.padding(20.dp))
