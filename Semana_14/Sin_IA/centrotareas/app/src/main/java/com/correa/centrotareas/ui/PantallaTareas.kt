@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -58,6 +59,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
+    val simularError by viewModel.simularError.collectAsState()
     var hasta by rememberSaveable { mutableStateOf("9999999") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
@@ -198,6 +200,16 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         fontWeight = FontWeight.Bold
                     )
                     Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Switch(
+                            checked = simularError,
+                            onCheckedChange = { viewModel.cambiarSimularError(it) }
+                        )
+                        Text("Simular error", style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -228,10 +240,42 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                                 "Pedidos: ${estado.pedidos}\n" +
                                 "Tiempo: ${estado.milisegundos} ms"
                         )
-                        is CargaUi.Error -> Unit
+                        is CargaUi.Error -> RecuadroError(
+                            mensaje = estado.mensaje,
+                            onReintentar = { viewModel.cargarALaVez() }
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RecuadroError(mensaje: String, onReintentar: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.errorContainer)
+                .padding(12.dp)
+        ) {
+            Text(
+                text = mensaje,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        OutlinedButton(onClick = onReintentar) {
+            Text("Reintentar")
         }
     }
 }

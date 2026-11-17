@@ -98,7 +98,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     fun cargarUnaPorUna() {
         iniciarCarga("Una por una") {
             val perfil = repo.cargarPerfil()
-            val pedidos = repo.cargarPedidos(false)
+            val pedidos = repo.cargarPedidos(_simularError.value)
             perfil to pedidos
         }
     }
@@ -107,10 +107,17 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         iniciarCarga("A la vez") {
             coroutineScope {
                 val perfil = async { repo.cargarPerfil() }
-                val pedidos = async { repo.cargarPedidos(false) }
+                val pedidos = async { repo.cargarPedidos(_simularError.value) }
                 perfil.await() to pedidos.await()
             }
         }
+    }
+
+    private val _simularError = MutableStateFlow(false)
+    val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
+
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
     }
 
     private fun iniciarCarga(
@@ -121,13 +128,21 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         trabajoCarga = viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = bloque()
-            _carga.value = CargaUi.Exito(
-                modo = modo,
-                perfil = perfil,
-                pedidos = pedidos.size,
-                milisegundos = System.currentTimeMillis() - inicio
-            )
+            try {
+                val (perfil, pedidos) = bloque()
+                _carga.value = CargaUi.Exito(
+                    modo = modo,
+                    perfil = perfil,
+                    pedidos = pedidos.size,
+                    milisegundos = System.currentTimeMillis() - inicio
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _carga.value = CargaUi.Error(
+                    "No se pudo cargar: " + (e.message ?: "error desconocido")
+                )
+            }
         }
     }
 
