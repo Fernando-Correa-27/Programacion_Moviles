@@ -50,6 +50,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

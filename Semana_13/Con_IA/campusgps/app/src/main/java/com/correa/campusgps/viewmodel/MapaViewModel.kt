@@ -3,6 +3,7 @@ package com.correa.campusgps.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.correa.campusgps.data.LugaresRepository
+import com.correa.campusgps.data.PreferenciasRepository
 import com.correa.campusgps.data.UbicacionRepository
 import com.correa.campusgps.model.LugarConDistancia
 import com.correa.campusgps.model.Lugar
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +23,8 @@ import kotlinx.coroutines.launch
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
-    lugaresRepo: LugaresRepository
+    lugaresRepo: LugaresRepository,
+    private val preferenciasRepo: PreferenciasRepository
 ) : ViewModel() {
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
@@ -59,6 +62,15 @@ class MapaViewModel(
     val masCercano: StateFlow<Lugar?> = lugaresVisibles
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    init {
+        viewModelScope.launch {
+            val ultimoId = preferenciasRepo.ultimoLugarId.firstOrNull()
+            if (ultimoId != null && _lugares.value.any { it.lugar.id == ultimoId }) {
+                _seleccionado.value = ultimoId
+            }
+        }
+    }
 
     fun buscar() {
         _seleccionado.value = null
@@ -98,6 +110,9 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+        if (id != null) {
+            viewModelScope.launch { preferenciasRepo.guardarUltimoLugar(id) }
+        }
     }
 
     fun elegirRadio(metros: Int?) {
