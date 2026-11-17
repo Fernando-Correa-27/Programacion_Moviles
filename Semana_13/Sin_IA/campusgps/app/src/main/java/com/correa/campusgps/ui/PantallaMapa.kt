@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.core.content.ContextCompat
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -51,8 +53,14 @@ fun PantallaMapa(vm: MapaViewModel) {
         MapaUbicacion(
             estado = estado,
             lugares = lugares,
-            seleccionado = null,
+            seleccionado = seleccionado,
             modifier = Modifier.fillMaxWidth().weight(1f)
+        )
+        ListaLugares(
+            lugares = lugares,
+            seleccionado = seleccionado,
+            onClick = vm::seleccionar,
+            modifier = Modifier.fillMaxWidth().height(220.dp)
         )
         when (val actual = estado) {
             is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud}\nLongitud: ${actual.posicion.longitud}")

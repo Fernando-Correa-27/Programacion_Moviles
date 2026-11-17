@@ -22,6 +22,9 @@ class MapaViewModel(
     private val _lugares = MutableStateFlow(lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) })
     val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
 
+    private val _seleccionado = MutableStateFlow<Int?>(null)
+    val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
+
     fun buscar() {
         _estado.value = UbicacionUi.Buscando
         viewModelScope.launch {
@@ -36,6 +39,10 @@ class MapaViewModel(
 
     fun permisoDenegado() {
         _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás")
+    }
+
+    fun seleccionar(id: Int?) {
+        _seleccionado.value = id
     }
 
     private fun actualizarDistancias(posicion: com.correa.campusgps.model.Posicion) {

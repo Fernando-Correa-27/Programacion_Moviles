@@ -58,6 +58,13 @@ fun MapaUbicacion(
             mapView.controller.animateTo(GeoPoint(estado.posicion.latitud, estado.posicion.longitud), 16.0, 1000L)
         }
     }
+    LaunchedEffect(seleccionado, lugares) {
+        val lugarSeleccionado = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar ?: return@LaunchedEffect
+        mapView.controller.animateTo(GeoPoint(lugarSeleccionado.latitud, lugarSeleccionado.longitud), 17.0, 1000L)
+        mapView.overlays.filterIsInstance<Marker>()
+            .firstOrNull { it.id == lugarSeleccionado.id.toString() }
+            ?.showInfoWindow()
+    }
     AndroidView(factory = { mapView }, modifier = modifier, update = { vista ->
         vista.overlays.clear()
         if (estado is UbicacionUi.Lista) {
