@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,6 +56,9 @@ import com.correa.campusgps.viewmodel.MapaViewModel
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
+    val lugaresVisibles by vm.lugaresVisibles.collectAsState()
+    val categorias by vm.categorias.collectAsState()
+    val categoriaFiltro by vm.categoriaFiltro.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -153,7 +157,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Box(modifier = Modifier.fillMaxSize().clipToBounds()) {
                         MapaUbicacion(
                             estado = estado,
-                            lugares = lugares,
+                            lugares = lugaresVisibles,
                             seleccionado = seleccionado,
                             masCercanoId = masCercano?.id,
                             controladorZoom = controlZoom,
@@ -166,6 +170,12 @@ fun PantallaMapa(vm: MapaViewModel) {
                         )
                     }
                 }
+                FiltroCategorias(
+                    categorias = categorias,
+                    seleccionada = categoriaFiltro,
+                    onSeleccionar = vm::filtrarPorCategoria,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -177,17 +187,18 @@ fun PantallaMapa(vm: MapaViewModel) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "${lugares.size} puntos",
+                        if (categoriaFiltro == null) "${lugares.size} puntos"
+                        else "${lugaresVisibles.size} de ${lugares.size}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 ListaLugares(
-                    lugares = lugares,
+                    lugares = lugaresVisibles,
                     seleccionado = seleccionado,
                     masCercanoId = masCercano?.id,
                     onClick = vm::seleccionar,
-                    modifier = Modifier.fillMaxWidth().height(if (compacto) 180.dp else 200.dp)
+                    modifier = Modifier.fillMaxWidth().heightIn(max = if (compacto) 180.dp else 200.dp)
                 )
                 OutlinedButton(
                     onClick = { masCercano?.let { vm.seleccionar(it.id) } },
@@ -202,7 +213,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Text("Ir al más cercano", style = MaterialTheme.typography.titleMedium)
                 }
                 masCercano?.let { lugar ->
-                    val distancia = lugares.firstOrNull { it.lugar.id == lugar.id }?.metros
+                    val distancia = lugaresVisibles.firstOrNull { it.lugar.id == lugar.id }?.metros
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = MaterialTheme.colorScheme.secondaryContainer,

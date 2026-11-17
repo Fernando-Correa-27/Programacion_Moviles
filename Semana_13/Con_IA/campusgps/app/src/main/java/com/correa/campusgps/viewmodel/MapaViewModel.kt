@@ -13,6 +13,7 @@ import com.correa.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,10 +29,23 @@ class MapaViewModel(
     private val _lugares = MutableStateFlow(lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) })
     val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
 
+    private val _categoriaFiltro = MutableStateFlow<String?>(null)
+    val categoriaFiltro: StateFlow<String?> = _categoriaFiltro.asStateFlow()
+
+    /** Categorías derivadas de los lugares; la vista no las escribe a mano. */
+    val categorias: StateFlow<List<String>> = _lugares
+        .map { lista -> lista.map { it.lugar.categoria }.distinct().sorted() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Lugares que pasan el filtro de categoría; alimentan mapa, lista y "más cercano". */
+    val lugaresVisibles: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoriaFiltro) { lista, categoria ->
+        if (categoria == null) lista else lista.filter { it.lugar.categoria == categoria }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
-    val masCercano: StateFlow<Lugar?> = lugares
+    val masCercano: StateFlow<Lugar?> = lugaresVisibles
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -60,6 +74,15 @@ class MapaViewModel(
             "Sin permiso de ubicación no puedo mostrar dónde estás",
             TipoError.SIN_PERMISO
         )
+    }
+
+    fun filtrarPorCategoria(categoria: String?) {
+        _categoriaFiltro.value = categoria
+        val idActual = _seleccionado.value ?: return
+        val sigueVisible = _lugares.value.any {
+            it.lugar.id == idActual && (categoria == null || it.lugar.categoria == categoria)
+        }
+        if (!sigueVisible) _seleccionado.value = null
     }
 
     fun seleccionar(id: Int?) {
