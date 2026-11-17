@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.correa.centrotareas.model.CargaUi
 import com.correa.centrotareas.model.PrimosUi
 import com.correa.centrotareas.ui.theme.AzulCentro
 import com.correa.centrotareas.ui.theme.VerdeExito
@@ -54,6 +57,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val carga by viewModel.carga.collectAsState()
     var hasta by rememberSaveable { mutableStateOf("9999999") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
@@ -193,6 +197,39 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = { viewModel.cargarUnaPorUna() },
+                            enabled = carga !is CargaUi.Cargando
+                        ) {
+                            Text("Una por una")
+                        }
+                        Button(
+                            onClick = { viewModel.cargarALaVez() },
+                            enabled = carga !is CargaUi.Cargando
+                        ) {
+                            Text("A la vez")
+                        }
+                    }
+                    when (val estado = carga) {
+                        CargaUi.Inicial -> Unit
+                        CargaUi.Cargando -> Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(36.dp))
+                        }
+                        is CargaUi.Exito -> RecuadroExito(
+                            "Modo: ${estado.modo}\n" +
+                                "Perfil: ${estado.perfil}\n" +
+                                "Pedidos: ${estado.pedidos}\n" +
+                                "Tiempo: ${estado.milisegundos} ms"
+                        )
+                        is CargaUi.Error -> Unit
+                    }
                 }
             }
         }
