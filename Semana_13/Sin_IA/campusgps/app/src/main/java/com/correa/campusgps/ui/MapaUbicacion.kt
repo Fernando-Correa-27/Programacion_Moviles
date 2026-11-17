@@ -27,6 +27,7 @@ fun MapaUbicacion(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    masCercanoId: Int?,
     modifier: Modifier = Modifier
 ) {
     val contexto = LocalContext.current
@@ -83,7 +84,10 @@ fun MapaUbicacion(
                 snippet = lugar.categoria
                 id = lugar.id.toString()
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                icon = pinTenido(contexto, 0xFF1E88E5.toInt())
+                icon = pinTenido(
+                    contexto,
+                    if (lugar.id == masCercanoId) 0xFF43A047.toInt() else 0xFF1E88E5.toInt()
+                )
             }
         }
         vista.invalidate()

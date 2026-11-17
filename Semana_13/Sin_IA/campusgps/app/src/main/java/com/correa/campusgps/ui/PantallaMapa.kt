@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.correa.campusgps.model.UbicacionUi
+import com.correa.campusgps.util.formatearDistancia
 import com.correa.campusgps.viewmodel.MapaViewModel
 import androidx.core.content.ContextCompat
 
@@ -27,6 +29,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -54,6 +57,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             estado = estado,
             lugares = lugares,
             seleccionado = seleccionado,
+            masCercanoId = masCercano?.id,
             modifier = Modifier.fillMaxWidth().weight(1f)
         )
         ListaLugares(
@@ -62,6 +66,16 @@ fun PantallaMapa(vm: MapaViewModel) {
             onClick = vm::seleccionar,
             modifier = Modifier.fillMaxWidth().height(220.dp)
         )
+        OutlinedButton(
+            onClick = { masCercano?.let { vm.seleccionar(it.id) } },
+            enabled = masCercano != null
+        ) {
+            Text("Ir al más cercano")
+        }
+        masCercano?.let { lugar ->
+            val distancia = lugares.firstOrNull { it.lugar.id == lugar.id }?.metros
+            Text("Más cercano: ${lugar.nombre}${distancia?.let { " (${formatearDistancia(it)})" } ?: ""}")
+        }
         when (val actual = estado) {
             is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud}\nLongitud: ${actual.posicion.longitud}")
             is UbicacionUi.Error -> Text(actual.mensaje)
