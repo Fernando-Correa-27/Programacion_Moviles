@@ -2,6 +2,7 @@ package com.correa.campusgps.ui
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.view.MotionEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +22,8 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.OverlayWithIW
+import org.osmdroid.views.overlay.Polygon
 
 /** Puente mínimo entre los botones de la pantalla y el MapView de osmdroid. */
 class ControladorZoomMapa {
@@ -37,6 +40,7 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercanoId: Int?,
+    radioMetros: Int?,
     controladorZoom: ControladorZoomMapa,
     modifier: Modifier = Modifier
 ) {
@@ -98,8 +102,17 @@ fun MapaUbicacion(
             ?.showInfoWindow()
     }
     AndroidView(factory = { mapView }, modifier = modifier, update = { vista ->
-        vista.overlays.filterIsInstance<Marker>().forEach { it.closeInfoWindow() }
+        vista.overlays.filterIsInstance<OverlayWithIW>().forEach { it.closeInfoWindow() }
         vista.overlays.clear()
+        if (radioMetros != null && estado is UbicacionUi.Lista) {
+            val centro = GeoPoint(estado.posicion.latitud, estado.posicion.longitud)
+            vista.overlays += CirculoRadio(vista).apply {
+                points = Polygon.pointsAsCircle(centro, radioMetros.toDouble())
+                fillColor = 0x332563EB
+                strokeColor = 0xFF2563EB.toInt()
+                strokeWidth = 3f
+            }
+        }
         lugares.forEach { conDistancia ->
             val lugar = conDistancia.lugar
             vista.overlays += Marker(vista).apply {
@@ -129,6 +142,11 @@ fun MapaUbicacion(
 private val COLOR_LUGAR = 0xFF2563EB.toInt()
 private val COLOR_MAS_CERCANO = 0xFF059669.toInt()
 private val COLOR_UBICACION = 0xFFDC2626.toInt()
+
+/** Círculo solo decorativo: no intercepta toques ni mueve la cámara. */
+private class CirculoRadio(mapa: MapView) : Polygon(mapa) {
+    override fun onSingleTapConfirmed(event: MotionEvent, mapView: MapView): Boolean = false
+}
 
 private fun pinTenido(contexto: Context, color: Int): Drawable {
     val original = requireNotNull(ContextCompat.getDrawable(contexto, R.drawable.ic_pin))

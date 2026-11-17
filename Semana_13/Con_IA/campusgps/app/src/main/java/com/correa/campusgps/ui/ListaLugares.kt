@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,11 +36,13 @@ import com.correa.campusgps.R
 import com.correa.campusgps.model.LugarConDistancia
 import com.correa.campusgps.util.formatearDistancia
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercanoId: Int?,
+    idsDentroDelRadio: Set<Int>,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -52,6 +56,7 @@ fun ListaLugares(
         items(lugares, key = { it.lugar.id }) { conDistancia ->
             val esSeleccionado = conDistancia.lugar.id == seleccionado
             val esMasCercano = conDistancia.lugar.id == masCercanoId
+            val dentroDelRadio = conDistancia.lugar.id in idsDentroDelRadio
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = if (esSeleccionado) MaterialTheme.colorScheme.primaryContainer
@@ -99,9 +104,9 @@ fun ListaLugares(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Row(
+                        FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Text(
                                 conDistancia.lugar.categoria,
@@ -116,6 +121,17 @@ fun ListaLugares(
                                     modifier = Modifier
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.secondaryContainer)
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                )
+                            }
+                            if (dentroDelRadio) {
+                                Text(
+                                    "Dentro del radio",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
                                         .padding(horizontal = 8.dp, vertical = 2.dp)
                                 )
                             }

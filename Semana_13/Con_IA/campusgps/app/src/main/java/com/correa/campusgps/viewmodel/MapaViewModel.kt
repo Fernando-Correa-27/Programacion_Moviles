@@ -45,6 +45,17 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
+    private val _radioMetros = MutableStateFlow<Int?>(null)
+    val radioMetros: StateFlow<Int?> = _radioMetros.asStateFlow()
+
+    /** Ids de lugares con distancia calculada dentro del radio elegido. */
+    val idsDentroDelRadio: StateFlow<Set<Int>> = combine(_lugares, _radioMetros) { lista, radio ->
+        if (radio == null) emptySet()
+        else lista.filter { it.metros != null && it.metros <= radio }
+            .map { it.lugar.id }
+            .toSet()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
     val masCercano: StateFlow<Lugar?> = lugaresVisibles
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -87,6 +98,10 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    fun elegirRadio(metros: Int?) {
+        _radioMetros.value = metros
     }
 
     private fun actualizarDistancias(posicion: Posicion) {

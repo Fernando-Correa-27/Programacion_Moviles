@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.correa.campusgps.R
 import com.correa.campusgps.model.UbicacionUi
-import com.correa.campusgps.util.formatearDistancia
 import com.correa.campusgps.viewmodel.MapaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +60,8 @@ fun PantallaMapa(vm: MapaViewModel) {
     val categoriaFiltro by vm.categoriaFiltro.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val radioMetros by vm.radioMetros.collectAsState()
+    val idsDentroDelRadio by vm.idsDentroDelRadio.collectAsState()
     val contexto = LocalContext.current
     val controlZoom = remember { ControladorZoomMapa() }
     val lanzador = rememberLauncherForActivityResult(
@@ -160,6 +161,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                             lugares = lugaresVisibles,
                             seleccionado = seleccionado,
                             masCercanoId = masCercano?.id,
+                            radioMetros = radioMetros,
                             controladorZoom = controlZoom,
                             modifier = Modifier.fillMaxSize()
                         )
@@ -174,6 +176,11 @@ fun PantallaMapa(vm: MapaViewModel) {
                     categorias = categorias,
                     seleccionada = categoriaFiltro,
                     onSeleccionar = vm::filtrarPorCategoria,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                SelectorRadio(
+                    radioMetros = radioMetros,
+                    onElegir = vm::elegirRadio,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(
@@ -197,6 +204,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     lugares = lugaresVisibles,
                     seleccionado = seleccionado,
                     masCercanoId = masCercano?.id,
+                    idsDentroDelRadio = idsDentroDelRadio,
                     onClick = vm::seleccionar,
                     modifier = Modifier.fillMaxWidth().heightIn(max = if (compacto) 180.dp else 200.dp)
                 )
@@ -211,39 +219,6 @@ fun PantallaMapa(vm: MapaViewModel) {
                     )
                 ) {
                     Text("Ir al más cercano", style = MaterialTheme.typography.titleMedium)
-                }
-                masCercano?.let { lugar ->
-                    val distancia = lugaresVisibles.firstOrNull { it.lugar.id == lugar.id }?.metros
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Más cercano",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                                Text(
-                                    lugar.nombre,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            }
-                            Text(
-                                distancia?.let(::formatearDistancia) ?: "—",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                    }
                 }
                 when (val actual = estado) {
                     is UbicacionUi.Lista -> Text(
