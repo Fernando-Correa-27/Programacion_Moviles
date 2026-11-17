@@ -27,7 +27,7 @@ com.correa.campusgps/
 
 ## Capturas
 
-Toma las capturas con el emulador ubicado en `-12.0464, -77.0428` y guárdalas en estas rutas:
+Capturas incluidas en `docs/capturas/`, tomadas con el emulador Medium Phone (API 37) y la ubicación fijada en `-12.0464, -77.0428`:
 
 | Escenario | Ruta |
 |---|---|
@@ -41,18 +41,18 @@ Toma las capturas con el emulador ubicado en `-12.0464, -77.0428` y guárdalas e
 
 | Prueba | Estado |
 |---|---|
-| Abrir y pulsar por primera vez | Pendiente (la hago yo en el emulador) |
-| Aceptar permiso | Pendiente (la hago yo en el emulador) |
-| Negar permiso y abrir ajustes | Pendiente (la hago yo en el emulador) |
-| Mapa y cinco marcadores | Pendiente (la hago yo en el emulador) |
-| Tocar un marcador | Pendiente (la hago yo en el emulador) |
-| Lista ordenada por distancia | Pendiente (la hago yo en el emulador) |
-| Seleccionar tarjeta | Pendiente (la hago yo en el emulador) |
-| Ir al más cercano | Pendiente (la hago yo en el emulador) |
-| Cambiar ubicación y volver a buscar | Pendiente (la hago yo en el emulador) |
-| GPS apagado | Pendiente (la hago yo en el emulador) |
-| Rotar pantalla | Pendiente (la hago yo en el emulador) |
-| Revisar archivos locales y secretos | Verificada: `.gitignore` excluye locales; no hay claves de Maps |
+| Abrir y pulsar por primera vez | Verificada en emulador: aparece el cuadro de permiso |
+| Aceptar permiso | Verificada: se ven latitud, longitud y el marcador Estás aquí |
+| Negar permiso y abrir ajustes | Verificada: mensaje con Abrir ajustes; el botón abre la ficha de la app |
+| Mapa y cinco marcadores | Verificada: carga OpenStreetMap con 5 marcadores azules y el más cercano en verde |
+| Tocar un marcador | Verificada: la ventana muestra nombre y categoría |
+| Lista ordenada por distancia | Verificada: 88 m, 109 m, 172 m, 220 m y 266 m; con ubicación lejana muestra km |
+| Seleccionar tarjeta | Verificada: la cámara viaja al lugar, abre su ventana y la tarjeta queda con fondo y borde |
+| Ir al más cercano | Verificada: el botón está deshabilitado antes de buscar y luego lleva al marcador verde |
+| Cambiar ubicación y volver a buscar | Verificada: se actualizan distancias, orden, marcador verde y el primero de la lista |
+| GPS apagado | Verificada: mensaje Activa el GPS con botón Reintentar |
+| Rotar pantalla | Verificada: se conservan ubicación, distancias, selección y lista; en horizontal el contenido es desplazable y el mapa mantiene altura fija |
+| Revisar archivos locales y secretos | Verificada: `.gitignore` excluye locales; no hay claves de Maps ni `local.properties` en Git |
 
 ## Para pensar
 
