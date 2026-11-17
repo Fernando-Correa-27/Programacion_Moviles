@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
     val contexto = LocalContext.current
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -49,7 +50,7 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
         MapaUbicacion(
             estado = estado,
-            lugares = emptyList(),
+            lugares = lugares,
             seleccionado = null,
             modifier = Modifier.fillMaxWidth().weight(1f)
         )

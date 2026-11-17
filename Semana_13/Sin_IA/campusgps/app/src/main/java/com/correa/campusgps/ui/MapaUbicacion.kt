@@ -1,5 +1,7 @@
 package com.correa.campusgps.ui
 
+import android.content.Context
+import android.graphics.drawable.Drawable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -10,6 +12,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import com.correa.campusgps.R
 import com.correa.campusgps.model.LugarConDistancia
 import com.correa.campusgps.model.UbicacionUi
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -60,8 +65,25 @@ fun MapaUbicacion(
                 position = GeoPoint(estado.posicion.latitud, estado.posicion.longitud)
                 title = "Estás aquí"
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                icon = pinTenido(contexto, 0xFFD32F2F.toInt())
+            }
+        }
+        lugares.forEach { conDistancia ->
+            val lugar = conDistancia.lugar
+            vista.overlays += Marker(vista).apply {
+                position = GeoPoint(lugar.latitud, lugar.longitud)
+                title = lugar.nombre
+                snippet = lugar.categoria
+                id = lugar.id.toString()
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                icon = pinTenido(contexto, 0xFF1E88E5.toInt())
             }
         }
         vista.invalidate()
     })
+}
+
+private fun pinTenido(contexto: Context, color: Int): Drawable {
+    val original = requireNotNull(ContextCompat.getDrawable(contexto, R.drawable.ic_pin))
+    return DrawableCompat.wrap(original).mutate().also { DrawableCompat.setTint(it, color) }
 }
