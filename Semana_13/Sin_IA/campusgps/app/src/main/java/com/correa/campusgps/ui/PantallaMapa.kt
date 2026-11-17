@@ -4,9 +4,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -41,12 +41,18 @@ fun PantallaMapa(vm: MapaViewModel) {
     }
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = ::alPulsar, enabled = estado !is UbicacionUi.Buscando) {
             Text(if (estado is UbicacionUi.Buscando) "Buscando..." else "Obtener mi ubicación")
         }
+        MapaUbicacion(
+            estado = estado,
+            lugares = emptyList(),
+            seleccionado = null,
+            modifier = Modifier.fillMaxWidth().weight(1f)
+        )
         when (val actual = estado) {
             is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud}\nLongitud: ${actual.posicion.longitud}")
             is UbicacionUi.Error -> Text(actual.mensaje)
