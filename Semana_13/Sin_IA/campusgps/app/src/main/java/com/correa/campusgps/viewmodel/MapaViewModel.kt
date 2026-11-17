@@ -6,6 +6,7 @@ import com.correa.campusgps.data.LugaresRepository
 import com.correa.campusgps.data.UbicacionRepository
 import com.correa.campusgps.model.LugarConDistancia
 import com.correa.campusgps.model.Lugar
+import com.correa.campusgps.model.Posicion
 import com.correa.campusgps.model.UbicacionUi
 import com.correa.campusgps.model.TipoError
 import com.correa.campusgps.util.distanciaMetros
@@ -35,6 +36,7 @@ class MapaViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun buscar() {
+        _seleccionado.value = null
         if (!ubicacionRepo.playServicesDisponible()) {
             _estado.value = UbicacionUi.Error(
                 "Este dispositivo no tiene Google Play Services",
@@ -64,7 +66,7 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    private fun actualizarDistancias(posicion: com.correa.campusgps.model.Posicion) {
+    private fun actualizarDistancias(posicion: Posicion) {
         _lugares.value = _lugares.value
             .map { LugarConDistancia(it.lugar, distanciaMetros(posicion, it.lugar)) }
             .sortedBy { it.metros }

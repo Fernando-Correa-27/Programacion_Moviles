@@ -36,6 +36,7 @@ fun MapaUbicacion(
         MapView(contexto).apply {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
+            setBuiltInZoomControls(false)
             controller.setZoom(12.0)
             controller.setCenter(GeoPoint(-12.0464, -77.0428))
         }
@@ -67,15 +68,8 @@ fun MapaUbicacion(
             ?.showInfoWindow()
     }
     AndroidView(factory = { mapView }, modifier = modifier, update = { vista ->
+        vista.overlays.filterIsInstance<Marker>().forEach { it.closeInfoWindow() }
         vista.overlays.clear()
-        if (estado is UbicacionUi.Lista) {
-            vista.overlays += Marker(vista).apply {
-                position = GeoPoint(estado.posicion.latitud, estado.posicion.longitud)
-                title = "Estás aquí"
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                icon = pinTenido(contexto, 0xFFD32F2F.toInt())
-            }
-        }
         lugares.forEach { conDistancia ->
             val lugar = conDistancia.lugar
             vista.overlays += Marker(vista).apply {
@@ -88,6 +82,14 @@ fun MapaUbicacion(
                     contexto,
                     if (lugar.id == masCercanoId) 0xFF43A047.toInt() else 0xFF1E88E5.toInt()
                 )
+            }
+        }
+        if (estado is UbicacionUi.Lista) {
+            vista.overlays += Marker(vista).apply {
+                position = GeoPoint(estado.posicion.latitud, estado.posicion.longitud)
+                title = "Estás aquí"
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                icon = pinTenido(contexto, 0xFFD32F2F.toInt())
             }
         }
         vista.invalidate()
