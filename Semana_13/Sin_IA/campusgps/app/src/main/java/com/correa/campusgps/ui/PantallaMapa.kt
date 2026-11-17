@@ -78,7 +78,7 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
         when (val actual = estado) {
             is UbicacionUi.Lista -> Text("Latitud: ${actual.posicion.latitud}\nLongitud: ${actual.posicion.longitud}")
-            is UbicacionUi.Error -> Text(actual.mensaje)
+            is UbicacionUi.Error -> MensajeError(actual, vm::buscar)
             else -> Unit
         }
     }

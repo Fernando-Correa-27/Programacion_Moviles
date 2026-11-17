@@ -5,10 +5,12 @@ import android.content.Context
 import com.correa.campusgps.model.Posicion
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
-class UbicacionRepositoryGoogle(contexto: Context) : UbicacionRepository {
+class UbicacionRepositoryGoogle(private val contexto: Context) : UbicacionRepository {
     private val cliente = LocationServices.getFusedLocationProviderClient(contexto)
 
     @SuppressLint("MissingPermission")
@@ -24,4 +26,7 @@ class UbicacionRepositoryGoogle(contexto: Context) : UbicacionRepository {
     } catch (e: Exception) {
         Result.failure(e)
     }
+
+    override fun playServicesDisponible(): Boolean =
+        GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(contexto) == ConnectionResult.SUCCESS
 }
