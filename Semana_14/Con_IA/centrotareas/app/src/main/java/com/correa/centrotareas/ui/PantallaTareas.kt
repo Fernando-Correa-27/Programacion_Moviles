@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -44,12 +45,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.correa.centrotareas.model.CargaUi
 import com.correa.centrotareas.model.PrimosUi
+import com.correa.centrotareas.model.RegistroTiempo
 import com.correa.centrotareas.ui.theme.AzulCentro
 import com.correa.centrotareas.ui.theme.VerdeExito
 import com.correa.centrotareas.ui.theme.VerdeExitoFondo
 import com.correa.centrotareas.ui.theme.VerdeExitoFondoOscuro
 import com.correa.centrotareas.ui.theme.VerdeExitoOscuro
 import com.correa.centrotareas.viewmodel.TareasViewModel
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +64,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
     val limite by viewModel.limite.collectAsState()
+    val tiempos by viewModel.tiempos.collectAsState()
     var hasta by rememberSaveable { mutableStateOf("5000000") }
     var hastaConsultado by rememberSaveable { mutableStateOf("") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
@@ -260,8 +264,79 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             onReintentar = { viewModel.cargarALaVez() }
                         )
                     }
+                    if (tiempos.isNotEmpty()) {
+                        ComparacionTiempos(
+                            tiempos = tiempos,
+                            onLimpiar = { viewModel.limpiarTiempos() }
+                        )
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ComparacionTiempos(
+    tiempos: List<RegistroTiempo>,
+    onLimpiar: () -> Unit
+) {
+    val ultimaUnaPorUna = tiempos.lastOrNull { it.modo == "Una por una" }
+    val ultimaALaVez = tiempos.lastOrNull { it.modo == "A la vez" }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "Comparación de tiempos",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Modo",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelLarge
+            )
+            Text(
+                text = "Tiempo en ms",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.End
+            )
+        }
+        HorizontalDivider()
+        tiempos.forEach { registro ->
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = registro.modo,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = registro.milisegundos.toString(),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.End
+                )
+            }
+        }
+        if (ultimaUnaPorUna != null && ultimaALaVez != null) {
+            Text(
+                text = "Diferencia: ${
+                    abs(ultimaUnaPorUna.milisegundos - ultimaALaVez.milisegundos)
+                } ms",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        OutlinedButton(
+            onClick = onLimpiar,
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text("Limpiar")
         }
     }
 }

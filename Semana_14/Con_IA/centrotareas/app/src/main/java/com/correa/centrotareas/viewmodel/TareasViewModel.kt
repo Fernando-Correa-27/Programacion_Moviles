@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.correa.centrotareas.data.TareasRepository
 import com.correa.centrotareas.model.CargaUi
 import com.correa.centrotareas.model.PrimosUi
+import com.correa.centrotareas.model.RegistroTiempo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
@@ -87,6 +88,13 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
+    private val _tiempos = MutableStateFlow<List<RegistroTiempo>>(emptyList())
+    val tiempos: StateFlow<List<RegistroTiempo>> = _tiempos.asStateFlow()
+
+    fun limpiarTiempos() {
+        _tiempos.value = emptyList()
+    }
+
     private var trabajoCarga: Job? = null
 
     fun cargarUnaPorUna() {
@@ -134,12 +142,14 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             val inicio = System.currentTimeMillis()
             try {
                 val (perfil, pedidos) = bloque()
+                val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito(
                     modo = modo,
                     perfil = perfil,
                     pedidos = pedidos.size,
-                    milisegundos = System.currentTimeMillis() - inicio
+                    milisegundos = milisegundos
                 )
+                _tiempos.value = _tiempos.value + RegistroTiempo(modo, milisegundos)
             } catch (e: TimeoutCancellationException) {
                 _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: CancellationException) {
