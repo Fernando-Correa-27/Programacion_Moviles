@@ -1,21 +1,32 @@
 package com.correa.centrotareas.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -24,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,10 +47,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -47,10 +62,6 @@ import com.correa.centrotareas.model.CargaUi
 import com.correa.centrotareas.model.PrimosUi
 import com.correa.centrotareas.model.RegistroTiempo
 import com.correa.centrotareas.ui.theme.AzulCentro
-import com.correa.centrotareas.ui.theme.VerdeExito
-import com.correa.centrotareas.ui.theme.VerdeExitoFondo
-import com.correa.centrotareas.ui.theme.VerdeExitoFondoOscuro
-import com.correa.centrotareas.ui.theme.VerdeExitoOscuro
 import com.correa.centrotareas.viewmodel.TareasViewModel
 import kotlin.math.abs
 
@@ -69,10 +80,24 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     var hastaConsultado by rememberSaveable { mutableStateOf("") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
+    val progresoAnimado by animateFloatAsState(
+        targetValue = progreso,
+        animationSpec = tween(durationMillis = 180),
+        label = "progreso"
+    )
+    val porcentaje = (progresoAnimado * 100).toInt().coerceIn(0, 100)
+
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("CentroTareas") },
+                title = {
+                    Text(
+                        text = "CentroTareas",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = AzulCentro,
                     titleContentColor = Color.White
@@ -88,102 +113,121 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            TarjetaSeccion(titulo = "Tarea con progreso") {
+                Button(
+                    onClick = { toques++ },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = "Tarea con progreso",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Button(onClick = { toques++ }) {
-                        Text("Tócame: $toques")
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(
-                            onClick = { viewModel.tareaLarga() },
-                            enabled = !corriendo
-                        ) {
-                            Text("Iniciar")
-                        }
-                        OutlinedButton(
-                            onClick = { viewModel.cancelar() },
-                            enabled = corriendo
-                        ) {
-                            Text("Cancelar")
-                        }
-                    }
-                    LinearProgressIndicator(
-                        progress = { progreso },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = "${(progreso * 100).toInt()} %",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(text = mensaje, style = MaterialTheme.typography.bodyMedium)
+                    Text("Tócame: $toques")
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = { viewModel.tareaLarga() },
+                        enabled = !corriendo,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Iniciar")
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.cancelar() },
+                        enabled = corriendo,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+                LinearProgressIndicator(
+                    progress = { progresoAnimado },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.primaryContainer,
+                    drawStopIndicator = {}
+                )
+                Text(
+                    text = "$porcentaje %",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = mensaje,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            TarjetaSeccion(titulo = "Contar números primos") {
+                OutlinedTextField(
+                    value = hasta,
+                    onValueChange = { nuevo ->
+                        if (nuevo.length <= 7 && nuevo.all { it.isDigit() }) {
+                            hasta = nuevo
+                        }
+                    },
+                    label = { Text("Hasta el número") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Contar números primos",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    OutlinedTextField(
-                        value = hasta,
-                        onValueChange = { nuevo ->
-                            if (nuevo.length <= 7 && nuevo.all { it.isDigit() }) {
-                                hasta = nuevo
+                    Button(
+                        onClick = {
+                            val numero = hasta.toIntOrNull()
+                            if (numero != null && numero >= 2) {
+                                hastaConsultado = numero.toString()
+                                viewModel.contar(numero)
                             }
                         },
-                        label = { Text("Hasta el número") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        enabled = primos !is PrimosUi.Calculando,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Button(
-                            onClick = {
-                                val numero = hasta.toIntOrNull()
-                                if (numero != null && numero >= 2) {
-                                    hastaConsultado = numero.toString()
-                                    viewModel.contar(numero)
-                                }
-                            },
-                            enabled = primos !is PrimosUi.Calculando
-                        ) {
-                            Text("Contar")
-                        }
-                        OutlinedButton(
-                            onClick = { viewModel.cancelarPrimos() },
-                            enabled = primos is PrimosUi.Calculando
-                        ) {
-                            Text("Cancelar")
-                        }
+                        Text("Contar")
                     }
+                    OutlinedButton(
+                        onClick = { viewModel.cancelarPrimos() },
+                        enabled = primos is PrimosUi.Calculando,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+                AnimatedVisibility(
+                    visible = primos !is PrimosUi.Inicial,
+                    enter = fadeIn(tween(180)) + expandVertically(tween(180)),
+                    exit = fadeOut(tween(120)) + shrinkVertically(tween(120))
+                ) {
                     when (val estado = primos) {
                         PrimosUi.Inicial -> Unit
                         PrimosUi.Calculando -> Text(
                             text = "Calculando...",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         is PrimosUi.Listo -> RecuadroExito(
                             "Primos hasta $hastaConsultado: ${estado.cantidad}\n" +
@@ -191,67 +235,65 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         )
                         PrimosUi.Cancelado -> Text(
                             text = "Cancelado",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            TarjetaSeccion(titulo = "Dos cargas") {
+                FilaInterruptor(
+                    etiqueta = "Simular error",
+                    activo = simularError,
+                    onCambio = { viewModel.cambiarSimularError(it) }
+                )
+                FilaInterruptor(
+                    etiqueta = "Límite de 2 s",
+                    activo = limite,
+                    onCambio = { viewModel.cambiarLimite(it) }
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Dos cargas",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    OutlinedButton(
+                        onClick = { viewModel.cargarUnaPorUna() },
+                        enabled = carga !is CargaUi.Cargando,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Switch(
-                            checked = simularError,
-                            onCheckedChange = { viewModel.cambiarSimularError(it) }
-                        )
-                        Text("Simular error", style = MaterialTheme.typography.bodyMedium)
+                        Text("Una por una")
                     }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Button(
+                        onClick = { viewModel.cargarALaVez() },
+                        enabled = carga !is CargaUi.Cargando,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Switch(
-                            checked = limite,
-                            onCheckedChange = { viewModel.cambiarLimite(it) }
-                        )
-                        Text("Límite de 2 s", style = MaterialTheme.typography.bodyMedium)
+                        Text("A la vez")
                     }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedButton(
-                            onClick = { viewModel.cargarUnaPorUna() },
-                            enabled = carga !is CargaUi.Cargando
-                        ) {
-                            Text("Una por una")
-                        }
-                        Button(
-                            onClick = { viewModel.cargarALaVez() },
-                            enabled = carga !is CargaUi.Cargando
-                        ) {
-                            Text("A la vez")
-                        }
-                    }
+                }
+                AnimatedVisibility(
+                    visible = carga !is CargaUi.Inicial,
+                    enter = fadeIn(tween(180)) + expandVertically(tween(180)),
+                    exit = fadeOut(tween(120)) + shrinkVertically(tween(120))
+                ) {
                     when (val estado = carga) {
                         CargaUi.Inicial -> Unit
                         CargaUi.Cargando -> Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(modifier = Modifier.size(36.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(40.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                         is CargaUi.Exito -> RecuadroExito(
                             "Modo: ${estado.modo}\n" +
@@ -264,15 +306,77 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             onReintentar = { viewModel.cargarALaVez() }
                         )
                     }
-                    if (tiempos.isNotEmpty()) {
-                        ComparacionTiempos(
-                            tiempos = tiempos,
-                            onLimpiar = { viewModel.limpiarTiempos() }
-                        )
-                    }
+                }
+                if (tiempos.isNotEmpty()) {
+                    ComparacionTiempos(
+                        tiempos = tiempos,
+                        onLimpiar = { viewModel.limpiarTiempos() }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TarjetaSeccion(
+    titulo: String,
+    contenido: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.semantics { heading() }
+            )
+            contenido()
+        }
+    }
+}
+
+@Composable
+private fun FilaInterruptor(
+    etiqueta: String,
+    activo: Boolean,
+    onCambio: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .toggleable(
+                value = activo,
+                role = Role.Switch,
+                onValueChange = onCambio
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Switch(
+            checked = activo,
+            onCheckedChange = null
+        )
+        Text(
+            text = etiqueta,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
@@ -284,59 +388,86 @@ private fun ComparacionTiempos(
     val ultimaUnaPorUna = tiempos.lastOrNull { it.modo == "Una por una" }
     val ultimaALaVez = tiempos.lastOrNull { it.modo == "A la vez" }
 
-    Column(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Text(
-            text = "Comparación de tiempos",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
-                text = "Modo",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.labelLarge
+                text = "Comparación de tiempos",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.semantics { heading() }
             )
-            Text(
-                text = "Tiempo en ms",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.labelLarge,
-                textAlign = TextAlign.End
-            )
-        }
-        HorizontalDivider()
-        tiempos.forEach { registro ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = registro.modo,
+                    text = "Modo",
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = registro.milisegundos.toString(),
+                    text = "Tiempo en ms",
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.End
                 )
             }
-        }
-        if (ultimaUnaPorUna != null && ultimaALaVez != null) {
-            Text(
-                text = "Diferencia: ${
-                    abs(ultimaUnaPorUna.milisegundos - ultimaALaVez.milisegundos)
-                } ms",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-        }
-        OutlinedButton(
-            onClick = onLimpiar,
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Limpiar")
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            tiempos.forEach { registro ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text(
+                        text = registro.modo,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = registro.milisegundos.toString(),
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+            if (ultimaUnaPorUna != null && ultimaALaVez != null) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = "Diferencia: ${
+                            abs(ultimaUnaPorUna.milisegundos - ultimaALaVez.milisegundos)
+                        } ms",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            OutlinedButton(
+                onClick = onLimpiar,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .heightIn(min = 48.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Limpiar")
+            }
         }
     }
 }
@@ -348,23 +479,31 @@ private fun RecuadroError(mensaje: String, onReintentar: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.errorContainer)
-                .padding(12.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.error.copy(alpha = 0.45f)
+            )
         ) {
             Text(
                 text = mensaje,
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-        OutlinedButton(onClick = onReintentar) {
+        OutlinedButton(
+            onClick = onReintentar,
+            modifier = Modifier.heightIn(min = 48.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
             Text("Reintentar")
         }
     }
@@ -372,20 +511,21 @@ private fun RecuadroError(mensaje: String, onReintentar: () -> Unit) {
 
 @Composable
 private fun RecuadroExito(texto: String) {
-    val oscuro = isSystemInDarkTheme()
-    val fondo = if (oscuro) VerdeExitoFondoOscuro else VerdeExitoFondo
-    val color = if (oscuro) VerdeExitoOscuro else VerdeExito
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(fondo)
-            .padding(12.dp)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.45f)
+        )
     ) {
         Text(
             text = texto,
-            modifier = Modifier.fillMaxWidth(),
-            color = color,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium
