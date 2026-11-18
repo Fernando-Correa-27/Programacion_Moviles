@@ -2,28 +2,57 @@
 
 Aplicación Android en Kotlin y Jetpack Compose que solicita la ubicación actual mediante Google Play Services Location, la presenta sobre un mapa de OpenStreetMap con osmdroid y ordena cinco puntos ficticios del campus por cercanía. No utiliza claves de Google Maps.
 
+Esta es la versión de la Fase 2: agrega filtro por categoría, radio de cercanía, persistencia del último lugar con DataStore, modo oscuro del mapa y un rediseño de la interfaz con controles de zoom.
+
 ## Arquitectura
 
 ```text
 ui/ (Compose + osmdroid) -> MapaViewModel -> interfaces Repository
                                       |-> UbicacionRepositoryGoogle (Fused)
                                       |-> LugaresRepositoryLocal
+                                      |-> PreferenciasRepositoryDataStore
 util/ (distancia y formato) <- ViewModel
 ```
 
-La vista observa `StateFlow` del ViewModel. El ViewModel no recibe `Context` ni clases de osmdroid; trabaja con modelos de dominio e interfaces. Los marcadores y `MapView` pertenecen únicamente a `ui/`.
+La vista observa `StateFlow` del ViewModel. El ViewModel no recibe `Context` ni clases de osmdroid; trabaja con modelos de dominio e interfaces. Los marcadores, el `MapView`, el círculo del radio y el filtro de color de los tiles pertenecen únicamente a `ui/`.
 
 ## Árbol de paquetes
 
 ```text
 com.correa.campusgps/
 ├── MainActivity.kt
-├── data/                 Repositories de ubicación y lugares
+├── data/                 Repositories de ubicación, lugares y preferencias
+│   ├── LugaresRepository.kt
+│   ├── LugaresRepositoryLocal.kt
+│   ├── PreferenciasRepository.kt
+│   ├── PreferenciasRepositoryDataStore.kt
+│   ├── UbicacionRepository.kt
+│   └── UbicacionRepositoryGoogle.kt
 ├── model/                Posicion, Lugar y estados de UI
-├── ui/                   Pantalla, mapa, lista y mensaje de error
+├── ui/                   Pantalla, mapa, lista, filtros, radio, zoom y tema
+│   ├── ControlesZoom.kt
+│   ├── FiltroCategorias.kt
+│   ├── ListaLugares.kt
+│   ├── MapaUbicacion.kt
+│   ├── MensajeError.kt
+│   ├── PantallaMapa.kt
+│   ├── SelectorRadio.kt
+│   └── theme/
 ├── util/                 Distancia y formato puros
 └── viewmodel/            MapaViewModel y Factory
 ```
+
+## Mejoras de la Fase 2
+
+| Mejora | Qué hace | Capas modificadas |
+|---|---|---|
+| Filtro por categoría | Chips `Todas`, `Comida`, `Estudio`, `Eventos`, `Servicios`. Filtra mapa, lista y cálculo del más cercano, y muestra el conteo `2 de 5`. | `viewmodel/` (estado y regla), `ui/` (chips y contador) |
+| Radio de cercanía | Selector `Sin radio`, `100 m`, `200 m`, `500 m`. Dibuja un círculo y marca `Dentro del radio` en la lista. No altera el filtro por categoría. | `viewmodel/` (ids dentro del radio), `ui/` (selector, polígono, etiquetas) |
+| Último lugar con DataStore | Guarda el id al tocar una tarjeta y lo restaura al reabrir la app, centrando el mapa y abriendo la ventana del marcador. | `data/` (interfaz e implementación), `viewmodel/` (restauración y guardado), `viewmodel/CampusViewModelFactory.kt` |
+| Modo oscuro del mapa | Invierte los colores de los tiles cuando el sistema usa tema oscuro. | `ui/MapaUbicacion.kt` |
+| Rediseño y zoom | Tema azul/verde/rojo con tarjetas y bordes suaves, cabecera con identidad, controles flotantes `+` y `−` de 48 dp y adaptación a horizontal. | `ui/theme/`, `ui/PantallaMapa.kt`, `ui/ListaLugares.kt`, `ui/ControlesZoom.kt` |
+
+El radio es informativo: dibuja el círculo y etiqueta los lugares que caen dentro, pero la lista sigue mostrando todos los lugares de la categoría activa. El filtro de categoría sí cambia el contenido del mapa, de la lista y del lugar más cercano.
 
 ## Capturas
 
@@ -36,6 +65,10 @@ Capturas incluidas en `docs/capturas/`, tomadas con el emulador Medium Phone (AP
 | Cinco marcadores | `docs/capturas/marcadores.png` |
 | Lista ordenada | `docs/capturas/lista_ordenada.png` |
 | Estado de error | `docs/capturas/error.png` |
+| Fase 2: rediseño con zoom, filtro y radio | `docs/capturas/diseno_fase2.png` |
+| Fase 2: filtro por categoría | `docs/capturas/filtro.png` |
+| Fase 2: radio de 200 m | `docs/capturas/radio.png` |
+| Fase 2: último lugar restaurado | `docs/capturas/ultimo_lugar.png` |
 
 ## Pruebas de aceptación
 
@@ -53,6 +86,14 @@ Capturas incluidas en `docs/capturas/`, tomadas con el emulador Medium Phone (AP
 | GPS apagado | Verificada: mensaje Activa el GPS con botón Reintentar |
 | Rotar pantalla | Verificada: se conservan ubicación, distancias, selección y lista; en horizontal el contenido es desplazable y el mapa mantiene altura fija |
 | Revisar archivos locales y secretos | Verificada: `.gitignore` excluye locales; no hay claves de Maps ni `local.properties` en Git |
+| Fase 2: filtro por categoría | Verificada: `Estudio` deja 2 de 5; el mapa, la lista y el más cercano se reducen; `Todas` restaura los 5 |
+| Fase 2: limpiar selección filtrada | Verificada: al seleccionar Cafetería y filtrar `Estudio`, la tarjeta seleccionada se desmarca y el mapa no queda apuntando a un lugar oculto |
+| Fase 2: radio de cercanía | Verificada: 100 m marca 1 lugar, 200 m marca 3, 500 m marca 3 (los otros dos están fuera); `Sin radio` apaga el círculo y las marcas |
+| Fase 2: círculo decorativo | Verificada: tocar dentro del círculo no mueve la cámara ni abre una burbuja vacía |
+| Fase 2: persistencia con DataStore | Verificada: se crea `files/datastore/campusgps_preferencias.preferences_pb`; al cerrar y reabrir, Cafetería aparece seleccionada y el mapa centrado en su marcador |
+| Fase 2: rotación con filtro y radio | Verificada: `Estudio` y `200 m` sobreviven a rotar a horizontal y volver a vertical, junto con distancias y etiquetas |
+| Fase 2: controles de zoom | Verificada: los botones `+` y `−` cambian el nivel de zoom del mapa, tienen 48 dp y permanecen visibles en horizontal |
+| Fase 2: modo oscuro del mapa | Verificada: con el tema oscuro del sistema los tiles se invierten y la interfaz usa la paleta oscura |
 
 ## Para pensar
 
