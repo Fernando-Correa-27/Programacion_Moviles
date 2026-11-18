@@ -63,7 +63,6 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
     val primos: StateFlow<PrimosUi> = _primos.asStateFlow()
 
-    // TODO Paso 5: fun contar(hasta: Int) y fun cancelarPrimos()
     private var trabajoPrimos: Job? = null
 
     fun contar(hasta: Int) {
@@ -92,7 +91,6 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
-    // TODO Paso 6: fun cargarUnaPorUna() y fun cargarALaVez()
     private var trabajoCarga: Job? = null
 
     fun cargarUnaPorUna() {
@@ -145,6 +143,4 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             }
         }
     }
-
-    // TODO Paso 7: simularError y manejo de errores
 }

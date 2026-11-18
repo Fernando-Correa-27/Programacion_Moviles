@@ -60,7 +60,8 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
-    var hasta by rememberSaveable { mutableStateOf("9999999") }
+    var hasta by rememberSaveable { mutableStateOf("5000000") }
+    var hastaConsultado by rememberSaveable { mutableStateOf("") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -157,7 +158,10 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                         Button(
                             onClick = {
                                 val numero = hasta.toIntOrNull()
-                                if (numero != null && numero >= 2) viewModel.contar(numero)
+                                if (numero != null && numero >= 2) {
+                                    hastaConsultado = numero.toString()
+                                    viewModel.contar(numero)
+                                }
                             },
                             enabled = primos !is PrimosUi.Calculando
                         ) {
@@ -177,7 +181,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             style = MaterialTheme.typography.bodyMedium
                         )
                         is PrimosUi.Listo -> RecuadroExito(
-                            "Primos hasta $hasta: ${estado.cantidad}\n" +
+                            "Primos hasta $hastaConsultado: ${estado.cantidad}\n" +
                                 "Tiempo: ${estado.milisegundos} ms"
                         )
                         PrimosUi.Cancelado -> Text(
