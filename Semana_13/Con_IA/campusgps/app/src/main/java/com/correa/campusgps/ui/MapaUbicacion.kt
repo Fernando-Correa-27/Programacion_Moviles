@@ -3,6 +3,7 @@ package com.correa.campusgps.ui
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +25,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.OverlayWithIW
 import org.osmdroid.views.overlay.Polygon
+import org.osmdroid.views.overlay.TilesOverlay
 
 /** Puente mínimo entre los botones de la pantalla y el MapView de osmdroid. */
 class ControladorZoomMapa {
@@ -46,6 +48,7 @@ fun MapaUbicacion(
 ) {
     val contexto = LocalContext.current
     val ciclo = LocalLifecycleOwner.current.lifecycle
+    val modoOscuro = isSystemInDarkTheme()
     val mapView = remember {
         MapView(contexto).apply {
             setTileSource(TileSourceFactory.MAPNIK)
@@ -88,6 +91,12 @@ fun MapaUbicacion(
             controladorZoom.acercar = null
             controladorZoom.alejar = null
         }
+    }
+    LaunchedEffect(modoOscuro) {
+        mapView.overlayManager.tilesOverlay.setColorFilter(
+            if (modoOscuro) TilesOverlay.INVERT_COLORS else null
+        )
+        mapView.invalidate()
     }
     LaunchedEffect(estado) {
         if (estado is UbicacionUi.Lista) {

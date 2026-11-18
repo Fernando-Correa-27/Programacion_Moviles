@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,20 +34,43 @@ fun FiltroCategorias(
         contentPadding = PaddingValues(horizontal = 1.dp)
     ) {
         item {
-            FilterChip(
-                selected = seleccionada == null,
-                onClick = { onSeleccionar(null) },
-                label = { Text("Todas") },
-                colors = colores
+            ChipCategoria(
+                texto = "Todas",
+                activo = seleccionada == null,
+                colores = colores,
+                onClick = { onSeleccionar(null) }
             )
         }
         items(categorias) { categoria ->
-            FilterChip(
-                selected = seleccionada == categoria,
-                onClick = { onSeleccionar(categoria) },
-                label = { Text(categoria) },
-                colors = colores
+            ChipCategoria(
+                texto = categoria,
+                activo = seleccionada == categoria,
+                colores = colores,
+                onClick = { onSeleccionar(categoria) }
             )
         }
     }
+}
+
+/** Chip con color de texto explícito para que el contraste se mantenga en claro y oscuro. */
+@Composable
+private fun ChipCategoria(
+    texto: String,
+    activo: Boolean,
+    colores: SelectableChipColors,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = activo,
+        onClick = onClick,
+        label = {
+            Text(
+                texto,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (activo) MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        colors = colores
+    )
 }
