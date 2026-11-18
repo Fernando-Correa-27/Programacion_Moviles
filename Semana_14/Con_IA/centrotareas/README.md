@@ -11,38 +11,48 @@ El objetivo es demostrar, con tres tareas que tardan, que el hilo principal nunc
 - Dos cargas simuladas que se comparan una por una contra en paralelo con `async`.
 - Manejo de errores y reintento sin cerrar la app.
 
+La rama `Sin_IA` contiene la Fase 1. La rama `Con_IA` parte de esa base y agrega cuatro
+mejoras: el progreso nace en el Repository como `Flow`, las cargas se pueden limitar con
+`withTimeout`, una tabla acumula los tiempos de los dos modos y la interfaz se rediseñó con
+criterios de accesibilidad. El detalle de los prompts está en [PROMPTS.md](PROMPTS.md).
+
 ## Tecnologías
 
 - Kotlin 2.0.21 y AGP 8.13.2.
 - Jetpack Compose + Material 3 (Compose BOM 2024.09.00).
 - `lifecycle-viewmodel-compose` 2.8.7.
-- Corrutinas de Kotlin: `viewModelScope`, `launch`, `withContext`, `async`, `Job`.
-- `StateFlow` para el estado que observa la pantalla.
+- Corrutinas de Kotlin: `viewModelScope`, `launch`, `withContext`, `async`, `withTimeout`, `Job`.
+- `StateFlow` para el estado que observa la pantalla y `Flow` con `flowOn` para el progreso.
 
 ## Árbol de paquetes
 
 ```text
-Semana_14/Sin_IA/centrotareas/
+Semana_14/Con_IA/centrotareas/
 ├── README.md
+├── PROMPTS.md
 ├── docs/
 │   └── capturas/
 │       ├── 01_tarea_progreso.png
 │       ├── 02_cancelada.png
 │       ├── 03_primos.png
 │       ├── 04_una_por_una_vs_a_la_vez.png
-│       └── 05_error.png
+│       ├── 05_error.png
+│       ├── fase2_ui.png
+│       ├── fase2_tiempo_agotado.png
+│       └── fase2_comparacion.png
 └── app/src/main/java/com/correa/centrotareas/
     ├── MainActivity.kt
     ├── model/
-    │   └── Estados.kt                  (PrimosUi, CargaUi)
+    │   ├── Estados.kt                  (PrimosUi, CargaUi)
+    │   └── RegistroTiempo.kt           (modo y milisegundos)
     ├── data/
-    │   ├── TareasRepository.kt         (interface)
-    │   └── TareasRepositoryLocal.kt    (cargas ficticias y contarPrimos)
+    │   ├── TareasRepository.kt         (interface con Flow de progreso)
+    │   └── TareasRepositoryLocal.kt    (flow + flowOn, cargas y contarPrimos)
     ├── viewmodel/
-    │   ├── TareasViewModel.kt          (estado y corrutinas)
+    │   ├── TareasViewModel.kt          (estado, cancelación y withTimeout)
     │   └── TareasViewModelFactory.kt   (crea el ViewModel con el Repository)
     └── ui/
-        ├── PantallaTareas.kt           (Compose: las tres tarjetas)
+        ├── PantallaTareas.kt           (Compose: las tres tarjetas y la tabla)
         └── theme/
             ├── Color.kt
             ├── Theme.kt
@@ -69,8 +79,64 @@ Reglas que respeta el proyecto:
 
 - La **View** solo conoce a su `ViewModel`; no lanza corrutinas ni usa `Thread`.
 - El **ViewModel** solo conoce la interface `TareasRepository`; no recibe `Context` ni
-  conoce Composables.
-- El **Repository** no expone estados de pantalla; solo devuelve datos o lanza errores.
+  conoce Composables. Recoge el `Flow` de progreso y lo convierte en `StateFlow`.
+- El **Repository** no expone estados de pantalla; solo devuelve datos, emite progreso o lanza
+  errores. `tareaConProgreso()` es un `Flow<Float>` que corre en `Dispatchers.Default` con
+  `flowOn`.
+
+## Mejoras de la Fase 2 (rama `Con_IA`)
+
+Se eligieron **cuatro** mejoras de la lista del Word. Tres cambian Repository o ViewModel y una
+cambia solo la UI.
+
+### 1. Progreso desde el Repository con `Flow`
+
+`TareasRepository.tareaConProgreso()` ahora devuelve `Flow<Float>`. La implementación emite 100
+valores, uno cada 40 ms, y declara `flowOn(Dispatchers.Default)`; el ViewModel lo recoge con
+`collect` dentro de `viewModelScope` y actualiza el `StateFlow` de la barra. Así el progreso ya no
+se calcula en el ViewModel y el hilo de trabajo queda explícito en el Repository.
+
+En Logcat, con el filtro `HILO`, se ve `Antes: main`, `Dentro: DefaultDispatcher-worker-*` y
+`Despues: main`. La tarea dura ≈4 s y el botón **Cancelar** cancela el `Job`, detiene la barra y
+deja el mensaje **Cancelado**.
+
+### 2. Tiempo máximo con `withTimeout`
+
+Cada carga se envuelve en `withTimeout(2000)` **solo cuando el interruptor «Límite de 2 s» está
+activo**. Si el perfil o los pedidos no terminan en ese plazo, la pantalla muestra el recuadro
+rojo **Tardó demasiado** con el botón **Reintentar**. El `catch` de
+`TimeoutCancellationException` va antes del de `CancellationException`, y este último siempre se
+relanza con `throw e`.
+
+El límite no está fijo a propósito: las cargas normales tardan 2 s y 3 s, así que si estuviera
+siempre activo la demo de éxito nunca se podría ver. Con el interruptor apagado se conserva el
+comportamiento original.
+
+### 3. Comparación de tiempos
+
+Cada carga exitosa agrega un `RegistroTiempo(modo, milisegundos)` a un `StateFlow` del ViewModel.
+La tarjeta muestra una tabla que acumula todas las filas, una etiqueta con la diferencia entre el
+último tiempo de **Una por una** y el último de **A la vez**, y el botón **Limpiar**. Los intentos
+fallidos o con tiempo agotado no se registran porque no tienen un tiempo comparable.
+
+### 4. Interfaz rediseñada
+
+Se aplicó la skill **UI/UX Pro Max** como guía y luego se adaptó al azul del laboratorio:
+
+- Se corrigieron los tokens `surfaceContainer*` de Material 3, que eran la causa de las tarjetas
+  lilas; ahora las tarjetas son blancas (claro) o gris azulado (oscuro) con borde y sin sombra.
+- Barra superior azul con título blanco e íconos de estado claros; títulos de tarjeta y de la tabla
+  en azul; recuadro verde para el éxito y rojo para el error con **Reintentar**.
+- Objetivos táctiles de al menos 48 dp en botones, filas de interruptores e interruptores; toda la
+  fila del interruptor es clicable con rol `Switch`.
+- Espaciado en múltiplos de 8 dp, esquinas de 12/16 dp y jerarquía tipográfica con
+  `headings` de accesibilidad.
+- El porcentaje y la barra se animan 180 ms con `animateFloatAsState`; los estados aparecen y
+  desaparecen con `AnimatedVisibility`. La tabla, el porcentaje y el botón **Tócame** siguen
+  existiendo en el mismo orden.
+- Modo claro y oscuro con contraste AA, y la rotación conserva el estado: `Tócame`, el N
+  consultado y los toques usan `rememberSaveable`; el progreso, el resultado y la tabla viven en
+  el ViewModel.
 
 ## Observación del Paso 1
 
@@ -101,6 +167,17 @@ instante, pero el sistema ofrecería cerrarla o esperar.
 | ![Error simulado](docs/capturas/05_error.png) | Error simulado: recuadro rojo «No se pudo cargar: Sin conexión» y botón **Reintentar**. |
 
 Las capturas se tomaron en el emulador **Medium_Phone_API_37.0** (1080 × 2400, 420 dpi).
+
+Las capturas 01–05 son de la Fase 1 y muestran la interfaz anterior al rediseño; se conservan
+como evidencia de las pruebas de esa fase.
+
+### Capturas de la Fase 2
+
+| Captura | Qué muestra |
+| --- | --- |
+| ![Interfaz rediseñada](docs/capturas/fase2_ui.png) | Pantalla inicial con la barra azul, tarjetas blancas, títulos azules y objetivos táctiles amplios. |
+| ![Tiempo agotado](docs/capturas/fase2_tiempo_agotado.png) | «Límite de 2 s» activo: recuadro rojo **Tardó demasiado** y botón **Reintentar**. |
+| ![Comparación de tiempos](docs/capturas/fase2_comparacion.png) | Tabla con **A la vez** (3 026 ms) y **Una por una** (5 093 ms), la diferencia de 2 067 ms y **Limpiar**. |
 
 ## Resultados de referencia de los primos
 
@@ -143,6 +220,22 @@ de la rama). El código registra `Thread.currentThread().name`, por eso el Logca
 antes y después, y `DefaultDispatcher-worker-2` dentro del `withContext`. No se cambió el nombre
 del hilo de forma artificial.
 
+### Pruebas de la Fase 2
+
+Se ejecutaron con la APK de `assembleDebug` en el mismo emulador, después de cada commit.
+
+| Prueba | Resultado esperado | Resultado obtenido | OK |
+| --- | --- | --- | :-: |
+| Progreso desde el Repository | La barra avanza y el log muestra el hilo de `Default` | De 0 a 100 % en 4,2 s; `Antes: main` → `Dentro: DefaultDispatcher-worker-2` → `Despues: main` | ✅ |
+| Cancelar la tarea con `Flow` | La barra se detiene y se puede reiniciar | Cancelada al 27 %; «Cancelado»; **Iniciar** habilitado | ✅ |
+| Límite de 2 s + Reintentar | «Tardó demasiado» y luego reintento exitoso | Con el límite activo apareció el recuadro rojo; al apagarlo y reintentar, «A la vez» en 3 002 ms | ✅ |
+| Tabla de comparación | Acumula las filas y calcula la diferencia | 5 093 ms (una por una) y 3 026 ms (a la vez); diferencia 2 067 ms; tras otro reintento la diferencia se recalculó a 2 091 ms | ✅ |
+| Limpiar | Vacía la tabla | La tabla desapareció y se pudo volver a llenar | ✅ |
+| Error simulado + Reintentar | «Sin conexión» y luego éxito | «No se pudo cargar: Sin conexión»; al apagar el interruptor y reintentar, 3 002 ms | ✅ |
+| Interfaz clara y oscura | Contraste AA, sin tarjetas lilas y barra azul | Revisada en modo claro y oscuro; títulos, textos, recuadros y estados legibles | ✅ |
+| Rotación | Conserva el estado de la pantalla | En horizontal seguían «Tócame: 2», 27 %, «Cancelado» y el resultado de primos | ✅ |
+| Revisar el código | Sin prohibidos | `git grep -n -E "GlobalScope\|runBlocking\|Thread\.sleep" -- "*.kt"` sin resultados | ✅ |
+
 ## Para pensar
 
 **1. ¿Por qué no se veía «Trabajando...» en el Paso 1?**
@@ -158,9 +251,9 @@ primera imagen que se dibujó fue la final. La pantalla no se refrescó en el in
 `Thread.sleep` bloquea el hilo del sistema operativo: mientras duerme, ese hilo no ejecuta nada
 más, ni otras corrutinas ni el dibujo de la pantalla. `delay` es una función `suspend`: suspende
 la corrutina, libera el hilo para que haga otras cosas y programa la continuación para más tarde.
-En `tareaLarga()` uso `delay(40)` dentro de `withContext(Dispatchers.Default)`: el hilo principal
-sigue libre y la barra se actualiza entre vuelta y vuelta. En una app real el `delay` simula una
-operación que espera, no un bloqueo.
+En la Fase 2 el `delay(40)` vive en `TareasRepositoryLocal.tareaConProgreso()`, dentro de un
+`flow` con `flowOn(Dispatchers.Default)`: el hilo principal sigue libre y la barra se actualiza
+entre vuelta y vuelta. En una app real el `delay` simula una operación que espera, no un bloqueo.
 
 **3. ¿Por qué `Dispatchers.Default` para los primos y `Dispatchers.IO` para la red?**
 
@@ -186,11 +279,12 @@ diferencia entre un cambio de configuración y cerrar la pantalla.
 Porque las dos cargas arrancan al mismo tiempo dentro de `coroutineScope`: `async` lanza
 `cargarPerfil()` (2 s) y `cargarPedidos()` (3 s) en paralelo, y el tiempo total es el máximo,
 ≈3 s, no la suma. Con llamadas secuenciales el total sería 2 s + 3 s ≈ 5 s. Si una falla,
-`coroutineScope` cancela a la otra hija y relanza la excepción; mi `try/catch` atrapa primero
-`CancellationException` y la vuelve a lanzar, y después `Exception` para mostrar
-«No se pudo cargar: ...». Así no queda una carga huérfana ni se cierra la app.
+`coroutineScope` cancela a la otra hija y relanza la excepción; en la Fase 2 mi `try/catch` de
+`iniciarCarga()` atrapa primero `TimeoutCancellationException` (cuando el límite está activo),
+después `CancellationException` y la vuelve a lanzar con `throw e`, y al final `Exception` para
+mostrar «No se pudo cargar: ...». Así no queda una carga huérfana ni se cierra la app.
 
-## Commits de la Fase 1
+## Commits de la Fase 1 (rama `Sin_IA`)
 
 | N | Mensaje |
 | --- | --- |
@@ -204,3 +298,14 @@ Porque las dos cargas arrancan al mismo tiempo dentro de `coroutineScope`: `asyn
 | 8 | `feat(errores): maneja errores de carga y agrega reintento` |
 | — | `fix(primos): ajusta el valor por defecto y el rotulo del resultado` (corrección de auditoría) |
 | 9 | `docs: agrega README con observaciones y capturas` |
+
+## Commits de la Fase 2 (rama `Con_IA`)
+
+| N | Mensaje |
+| --- | --- |
+| 1 | `chore: copia la Fase 1 de CentroTareas a la rama Con_IA` |
+| 2 | `feat(flow): mueve el progreso de la tarea al Repository con Flow y flowOn` |
+| 3 | `feat(timeout): agrega withTimeout en las cargas con aviso de tiempo agotado` |
+| 4 | `feat(comparacion): agrega tabla que acumula los tiempos de una por una y a la vez` |
+| 5 | `style(ui): mejora el diseno de la interfaz con UI/UX Pro Max` |
+| 6 | `docs: agrega PROMPTS.md y actualiza el README con las mejoras de la Fase 2` |
