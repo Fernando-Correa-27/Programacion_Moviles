@@ -8,8 +8,10 @@ import com.correa.centrotareas.model.CargaUi
 import com.correa.centrotareas.model.PrimosUi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -89,8 +91,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     fun cargarUnaPorUna() {
         iniciarCarga("Una por una") {
-            val perfil = repo.cargarPerfil()
-            val pedidos = repo.cargarPedidos(_simularError.value)
+            val perfil = conLimite { repo.cargarPerfil() }
+            val pedidos = conLimite { repo.cargarPedidos(_simularError.value) }
             perfil to pedidos
         }
     }
@@ -98,11 +100,21 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     fun cargarALaVez() {
         iniciarCarga("A la vez") {
             coroutineScope {
-                val perfil = async { repo.cargarPerfil() }
-                val pedidos = async { repo.cargarPedidos(_simularError.value) }
+                val perfil = async { conLimite { repo.cargarPerfil() } }
+                val pedidos = async { conLimite { repo.cargarPedidos(_simularError.value) } }
                 perfil.await() to pedidos.await()
             }
         }
+    }
+
+    private suspend fun <T> conLimite(bloque: suspend () -> T): T =
+        if (_limite.value) withTimeout(2000) { bloque() } else bloque()
+
+    private val _limite = MutableStateFlow(false)
+    val limite: StateFlow<Boolean> = _limite.asStateFlow()
+
+    fun cambiarLimite(valor: Boolean) {
+        _limite.value = valor
     }
 
     private val _simularError = MutableStateFlow(false)
@@ -128,6 +140,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     pedidos = pedidos.size,
                     milisegundos = System.currentTimeMillis() - inicio
                 )
+            } catch (e: TimeoutCancellationException) {
+                _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

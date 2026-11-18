@@ -60,6 +60,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
+    val limite by viewModel.limite.collectAsState()
     var hasta by rememberSaveable { mutableStateOf("5000000") }
     var hastaConsultado by rememberSaveable { mutableStateOf("") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
@@ -212,6 +213,16 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                             onCheckedChange = { viewModel.cambiarSimularError(it) }
                         )
                         Text("Simular error", style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Switch(
+                            checked = limite,
+                            onCheckedChange = { viewModel.cambiarLimite(it) }
+                        )
+                        Text("Límite de 2 s", style = MaterialTheme.typography.bodyMedium)
                     }
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
