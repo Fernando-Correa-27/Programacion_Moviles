@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.correa.murocampus.data.PostRepository
 import com.correa.murocampus.data.mensajeDe
 import com.correa.murocampus.model.Comentario
+import com.correa.murocampus.model.NuevoPost
 import com.correa.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -33,6 +34,9 @@ class PostsViewModel(
 
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
+    private val _creacion = MutableStateFlow<UiState<Post>?>(null)
+    val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
     init {
         cargar()
@@ -85,5 +89,20 @@ class PostsViewModel(
 
     fun volverALista() {
         _idSeleccionado.value = null
+    }
+
+    fun publicar(titulo: String, texto: String) {
+        if (titulo.isBlank() || texto.isBlank()) return
+
+        _creacion.value = UiState.Cargando
+        viewModelScope.launch {
+            repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
+                .onSuccess { _creacion.value = UiState.Exito(it) }
+                .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun limpiarCreacion() {
+        _creacion.value = null
     }
 }

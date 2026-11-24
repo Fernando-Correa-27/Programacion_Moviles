@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,6 +35,7 @@ fun PantallaLista(
     onFiltrar: (Int?) -> Unit,
     onReintentar: () -> Unit,
     onClickPost: (Int) -> Unit,
+    onCrear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -44,6 +49,14 @@ fun PantallaLista(
                     )
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onCrear) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Crear publicación"
+                )
+            }
         }
     ) { padding ->
         Column(
@@ -94,7 +107,7 @@ fun PantallaLista(
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(vertical = 8.dp)
+                                contentPadding = PaddingValues(top = 8.dp, bottom = 88.dp)
                             ) {
                                 items(estado.datos, key = { it.id }) { post ->
                                     TarjetaPost(
