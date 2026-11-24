@@ -24,6 +24,7 @@ import com.correa.murocampus.viewmodel.UiState
 fun PantallaLista(
     estado: UiState<List<Post>>,
     onReintentar: () -> Unit,
+    onClickPost: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -65,7 +66,10 @@ fun PantallaLista(
                             contentPadding = PaddingValues(vertical = 8.dp)
                         ) {
                             items(estado.datos, key = { it.id }) { post ->
-                                TarjetaPost(post = post)
+                                TarjetaPost(
+                                    post = post,
+                                    onClick = { onClickPost(post.id) }
+                                )
                             }
                         }
                     }
