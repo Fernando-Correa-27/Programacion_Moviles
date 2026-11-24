@@ -1,12 +1,16 @@
 package com.correa.murocampus.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,6 +27,8 @@ import com.correa.murocampus.viewmodel.UiState
 @Composable
 fun PantallaLista(
     estado: UiState<List<Post>>,
+    usuarioFiltro: Int?,
+    onFiltrar: (Int?) -> Unit,
     onReintentar: () -> Unit,
     onClickPost: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -40,36 +46,62 @@ fun PantallaLista(
             )
         }
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            when (estado) {
-                UiState.Cargando -> Cargando()
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    FilterChip(
+                        selected = usuarioFiltro == null,
+                        onClick = { onFiltrar(null) },
+                        label = { Text("Todos") }
+                    )
+                }
+                items((1..10).toList()) { userId ->
+                    FilterChip(
+                        selected = usuarioFiltro == userId,
+                        onClick = { onFiltrar(userId) },
+                        label = { Text("Usuario $userId") }
+                    )
+                }
+            }
 
-                is UiState.Error -> ErrorConReintento(
-                    mensaje = estado.mensaje,
-                    onReintentar = onReintentar
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                when (estado) {
+                    UiState.Cargando -> Cargando()
 
-                is UiState.Exito -> {
-                    if (estado.datos.isEmpty()) {
-                        Text(
-                            text = "Sin publicaciones",
-                            modifier = Modifier.align(Alignment.Center),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(vertical = 8.dp)
-                        ) {
-                            items(estado.datos, key = { it.id }) { post ->
-                                TarjetaPost(
-                                    post = post,
-                                    onClick = { onClickPost(post.id) }
-                                )
+                    is UiState.Error -> ErrorConReintento(
+                        mensaje = estado.mensaje,
+                        onReintentar = onReintentar
+                    )
+
+                    is UiState.Exito -> {
+                        if (estado.datos.isEmpty()) {
+                            Text(
+                                text = "Sin publicaciones",
+                                modifier = Modifier.align(Alignment.Center),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(vertical = 8.dp)
+                            ) {
+                                items(estado.datos, key = { it.id }) { post ->
+                                    TarjetaPost(
+                                        post = post,
+                                        onClick = { onClickPost(post.id) }
+                                    )
+                                }
                             }
                         }
                     }

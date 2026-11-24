@@ -30,11 +30,14 @@ class MainActivity : ComponentActivity() {
                 val lista by viewModel.lista.collectAsStateWithLifecycle()
                 val detalle by viewModel.detalle.collectAsStateWithLifecycle()
                 val idSeleccionado by viewModel.idSeleccionado.collectAsStateWithLifecycle()
+                val usuarioFiltro by viewModel.usuarioFiltro.collectAsStateWithLifecycle()
 
                 val id = idSeleccionado
                 if (id == null) {
                     PantallaLista(
                         estado = lista,
+                        usuarioFiltro = usuarioFiltro,
+                        onFiltrar = viewModel::filtrar,
                         onReintentar = viewModel::cargar,
                         onClickPost = viewModel::abrir
                     )

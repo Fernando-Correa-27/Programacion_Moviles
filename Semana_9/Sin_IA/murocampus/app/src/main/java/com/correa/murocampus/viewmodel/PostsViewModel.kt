@@ -31,6 +31,9 @@ class PostsViewModel(
     private val _idSeleccionado = MutableStateFlow<Int?>(null)
     val idSeleccionado: StateFlow<Int?> = _idSeleccionado.asStateFlow()
 
+    private val _usuarioFiltro = MutableStateFlow<Int?>(null)
+    val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
     init {
         cargar()
     }
@@ -38,10 +41,21 @@ class PostsViewModel(
     fun cargar() {
         viewModelScope.launch {
             _lista.value = UiState.Cargando
-            repo.listar()
+            val filtro = _usuarioFiltro.value
+            val resultado = if (filtro == null) {
+                repo.listar()
+            } else {
+                repo.porUsuario(filtro)
+            }
+            resultado
                 .onSuccess { _lista.value = UiState.Exito(it) }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    fun filtrar(userId: Int?) {
+        _usuarioFiltro.value = userId
+        cargar()
     }
 
     fun abrir(id: Int) {
