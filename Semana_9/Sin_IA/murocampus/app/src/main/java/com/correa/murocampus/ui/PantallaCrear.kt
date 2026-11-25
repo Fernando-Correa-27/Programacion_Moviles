@@ -91,7 +91,9 @@ fun PantallaCrear(
             Button(
                 onClick = { onPublicar(titulo, texto) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = titulo.isNotBlank() && texto.isNotBlank()
+                enabled = titulo.isNotBlank() &&
+                    texto.isNotBlank() &&
+                    estado != UiState.Cargando
             ) {
                 Text("Publicar")
             }
