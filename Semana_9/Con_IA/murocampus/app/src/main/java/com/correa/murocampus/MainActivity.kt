@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
                 val idSeleccionado by viewModel.idSeleccionado.collectAsStateWithLifecycle()
                 val usuarioFiltro by viewModel.usuarioFiltro.collectAsStateWithLifecycle()
                 val creacion by viewModel.creacion.collectAsStateWithLifecycle()
+                val eliminacion by viewModel.eliminacion.collectAsStateWithLifecycle()
 
                 var mostrandoCrear by rememberSaveable { mutableStateOf(false) }
 
@@ -74,6 +75,8 @@ class MainActivity : ComponentActivity() {
                         BackHandler { viewModel.volverALista() }
                         PantallaDetalle(
                             estado = detalle,
+                            eliminacion = eliminacion,
+                            onEliminar = { viewModel.eliminar(id) },
                             onReintentar = { viewModel.abrir(id) },
                             onVolver = viewModel::volverALista
                         )

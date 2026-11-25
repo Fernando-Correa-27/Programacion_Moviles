@@ -38,6 +38,9 @@ class PostsViewModel(
     private val _creacion = MutableStateFlow<UiState<Post>?>(null)
     val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)
+    val eliminacion: StateFlow<UiState<Unit>?> = _eliminacion.asStateFlow()
+
     init {
         cargar()
     }
@@ -63,6 +66,7 @@ class PostsViewModel(
     }
 
     fun abrir(id: Int) {
+        _eliminacion.value = null
         _idSeleccionado.value = id
         _detalle.value = UiState.Cargando
         viewModelScope.launch {
@@ -88,6 +92,7 @@ class PostsViewModel(
     }
 
     fun volverALista() {
+        _eliminacion.value = null
         _idSeleccionado.value = null
     }
 
@@ -99,6 +104,28 @@ class PostsViewModel(
             repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
                 .onSuccess { _creacion.value = UiState.Exito(it) }
                 .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun eliminar(id: Int) {
+        if (_eliminacion.value == UiState.Cargando) return
+
+        _eliminacion.value = UiState.Cargando
+        viewModelScope.launch {
+            repo.borrar(id)
+                .onSuccess {
+                    quitarDeLista(id)
+                    _eliminacion.value = null
+                    volverALista()
+                }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    private fun quitarDeLista(id: Int) {
+        val actual = _lista.value
+        if (actual is UiState.Exito) {
+            _lista.value = UiState.Exito(actual.datos.filterNot { it.id == id })
         }
     }
 
