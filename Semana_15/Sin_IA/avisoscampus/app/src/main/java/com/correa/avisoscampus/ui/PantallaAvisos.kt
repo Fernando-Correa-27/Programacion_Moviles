@@ -89,7 +89,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }) { Text("Permitir notificaciones") }
             }
             TarjetaAvisos("Avisos") {
-                Button(onClick = {}, enabled = false) { Text("Mostrar aviso") }
+                Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
             }
             TarjetaAvisos("Recordatorio") {
                 Button(onClick = {}, enabled = false) { Text("Recordar en 10 s") }

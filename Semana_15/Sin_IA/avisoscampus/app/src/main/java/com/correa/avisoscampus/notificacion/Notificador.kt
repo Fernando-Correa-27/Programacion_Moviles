@@ -1,12 +1,16 @@
 package com.correa.avisoscampus.notificacion
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.correa.avisoscampus.R
 import com.correa.avisoscampus.model.Aviso
 
 object Notificador {
@@ -24,6 +28,24 @@ object Notificador {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
             PackageManager.PERMISSION_GRANTED
 
-    @Suppress("UNUSED_PARAMETER")
-    fun mostrar(context: Context, aviso: Aviso): Boolean = false
+    @SuppressLint("MissingPermission")
+    fun mostrar(context: Context, aviso: Aviso): Boolean {
+        if (!tienePermiso(context)) return false
+
+        val notificacion = NotificationCompat.Builder(context, CANAL)
+            .setSmallIcon(R.drawable.ic_notificacion)
+            .setContentTitle(aviso.titulo)
+            .setContentText(aviso.texto)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        return try {
+            NotificationManagerCompat.from(context).notify(aviso.id, notificacion)
+            true
+        } catch (_: SecurityException) {
+            // El permiso pudo cambiar entre la comprobación y la publicación.
+            false
+        }
+    }
 }
