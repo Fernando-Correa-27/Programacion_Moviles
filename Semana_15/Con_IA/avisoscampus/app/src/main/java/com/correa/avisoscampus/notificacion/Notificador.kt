@@ -15,14 +15,20 @@ import androidx.core.content.ContextCompat
 import com.correa.avisoscampus.MainActivity
 import com.correa.avisoscampus.R
 import com.correa.avisoscampus.model.Aviso
+import com.correa.avisoscampus.model.CanalAviso
 
 object Notificador {
     const val CANAL = "avisos"
+    const val CANAL_URGENTE = "urgentes"
 
     fun crearCanal(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val canal = NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
-            context.getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
+            val avisos = NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
+            val urgentes = NotificationChannel(
+                CANAL_URGENTE, "Urgentes", NotificationManager.IMPORTANCE_HIGH
+            )
+            context.getSystemService(NotificationManager::class.java)
+                .createNotificationChannels(listOf(avisos, urgentes))
         }
     }
 
@@ -37,11 +43,15 @@ object Notificador {
 
         val intent = Intent(context, MainActivity::class.java)
         val pendiente = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val notificacion = NotificationCompat.Builder(context, CANAL)
+        val (idCanal, prioridad) = when (aviso.canal) {
+            CanalAviso.AVISOS -> CANAL to NotificationCompat.PRIORITY_DEFAULT
+            CanalAviso.URGENTES -> CANAL_URGENTE to NotificationCompat.PRIORITY_HIGH
+        }
+        val notificacion = NotificationCompat.Builder(context, idCanal)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(prioridad)
             .setContentIntent(pendiente)
             .setAutoCancel(true)
             .build()

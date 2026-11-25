@@ -6,13 +6,23 @@ enum class Origen(val texto: String) {
     MODO_AVION("Modo avión")
 }
 
+enum class CanalAviso {
+    AVISOS, URGENTES
+}
+
 data class Aviso(
     val id: Int,
     val titulo: String,
     val texto: String,
     val origen: Origen,
     val hora: String
-)
+) {
+    val canal: CanalAviso
+        get() = when (origen) {
+            Origen.RECORDATORIO -> CanalAviso.URGENTES
+            else -> CanalAviso.AVISOS
+        }
+}
 
 sealed interface PermisoUi {
     data object SinPedir : PermisoUi
