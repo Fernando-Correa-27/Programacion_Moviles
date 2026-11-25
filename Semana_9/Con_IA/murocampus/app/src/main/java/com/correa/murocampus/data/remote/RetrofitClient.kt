@@ -1,6 +1,7 @@
 package com.correa.murocampus.data.remote
 
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,7 +16,17 @@ object RetrofitClient {
         ignoreUnknownKeys = true
     }
 
+    // Se agrega antes del logger para que el encabezado aparezca en Logcat.
+    private val encabezadoAceptacion = Interceptor { cadena ->
+        val peticion = cadena.request()
+            .newBuilder()
+            .header("Accept", "application/json")
+            .build()
+        cadena.proceed(peticion)
+    }
+
     private val cliente = OkHttpClient.Builder()
+        .addInterceptor(encabezadoAceptacion)
         .addInterceptor(
             HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
