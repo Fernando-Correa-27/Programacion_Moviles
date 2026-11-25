@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -59,6 +60,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val avisos by vm.avisos.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
     val faltan by vm.faltan.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val solicitarPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -69,7 +71,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     }
     LaunchedEffect(vm) {
         vm.eventos.collect { aviso ->
-            Notificador.mostrar(contexto, aviso)
+            if (!Notificador.mostrar(contexto, aviso)) vm.noSePudoMostrar()
         }
     }
 
@@ -116,6 +118,22 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         solicitarPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }) { Text("Permitir notificaciones") }
+                mensaje?.let { error ->
+                    val colores = MaterialTheme.colorScheme
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .background(colores.errorContainer, RoundedCornerShape(12.dp))
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(error, color = colores.onErrorContainer)
+                        OutlinedButton(onClick = {
+                            val ajustes = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                            contexto.startActivity(ajustes)
+                        }) { Text("Abrir ajustes") }
+                    }
+                }
             }
             TarjetaAvisos("Avisos") {
                 Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
