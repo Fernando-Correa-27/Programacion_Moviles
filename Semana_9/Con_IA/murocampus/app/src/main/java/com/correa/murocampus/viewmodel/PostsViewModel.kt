@@ -10,8 +10,11 @@ import com.correa.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class DetalleUi(
@@ -25,6 +28,19 @@ class PostsViewModel(
 
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
+
+    private val _consulta = MutableStateFlow("")
+    val consulta: StateFlow<String> = _consulta.asStateFlow()
+
+    // La búsqueda se aplica sobre lo ya descargado y respeta el filtro por usuario.
+    val listaVisible: StateFlow<UiState<List<Post>>> =
+        combine(_lista, _consulta) { estado, texto ->
+            filtrarPorTitulo(estado, texto)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _lista.value
+        )
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
@@ -63,6 +79,10 @@ class PostsViewModel(
     fun filtrar(userId: Int?) {
         _usuarioFiltro.value = userId
         cargar()
+    }
+
+    fun buscar(texto: String) {
+        _consulta.value = texto
     }
 
     fun abrir(id: Int) {
@@ -127,6 +147,22 @@ class PostsViewModel(
         if (actual is UiState.Exito) {
             _lista.value = UiState.Exito(actual.datos.filterNot { it.id == id })
         }
+    }
+
+    private fun filtrarPorTitulo(
+        estado: UiState<List<Post>>,
+        consulta: String
+    ): UiState<List<Post>> {
+        if (estado !is UiState.Exito) return estado
+
+        val texto = consulta.trim()
+        if (texto.isEmpty()) return estado
+
+        return UiState.Exito(
+            estado.datos.filter { post ->
+                post.title.contains(texto, ignoreCase = true)
+            }
+        )
     }
 
     fun limpiarCreacion() {

@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MurocampusTheme {
-                val lista by viewModel.lista.collectAsStateWithLifecycle()
+                val lista by viewModel.listaVisible.collectAsStateWithLifecycle()
+                val consulta by viewModel.consulta.collectAsStateWithLifecycle()
                 val detalle by viewModel.detalle.collectAsStateWithLifecycle()
                 val idSeleccionado by viewModel.idSeleccionado.collectAsStateWithLifecycle()
                 val usuarioFiltro by viewModel.usuarioFiltro.collectAsStateWithLifecycle()
@@ -60,6 +61,8 @@ class MainActivity : ComponentActivity() {
                     id == null -> {
                         PantallaLista(
                             estado = lista,
+                            consulta = consulta,
+                            onBuscar = viewModel::buscar,
                             usuarioFiltro = usuarioFiltro,
                             onFiltrar = viewModel::filtrar,
                             onReintentar = viewModel::cargar,
