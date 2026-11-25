@@ -6,6 +6,7 @@ import com.correa.avisoscampus.data.AvisosRepository
 import com.correa.avisoscampus.model.Aviso
 import com.correa.avisoscampus.model.Origen
 import com.correa.avisoscampus.model.PermisoUi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,8 +17,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
+    private val escritura = Dispatchers.IO.limitedParallelism(1)
+
     val avisos: StateFlow<List<Aviso>> = repo.avisos
 
     private val _eventos = MutableSharedFlow<Aviso>()
@@ -91,7 +95,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
 
     private fun registrarAviso(titulo: String, texto: String, origen: Origen) {
         viewModelScope.launch {
-            val aviso = repo.registrar(titulo, texto, origen)
+            val aviso = withContext(escritura) { repo.registrar(titulo, texto, origen) }
             // Durante una rotación espera al nuevo colector sin repetir avisos anteriores.
             _eventos.subscriptionCount.first { it > 0 }
             _eventos.emit(aviso)
