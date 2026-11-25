@@ -1,0 +1,32 @@
+AvisosCampus — Fase 2
+Emulador Medium_Phone_API_37.0 (API 37).
+
+1. Canal Avisos en ajustes y mImportance=3 en dumpsys.
+2. Instalación limpia, diálogo real y etiqueta Permitido; denegación en prueba 11.
+3. Tarea lista visible, id 1.
+4. Dos NotificationRecord activos con ids [1, 2].
+5. MainActivity abierta y autocancelada con HOME y con HOME + am kill (1→0, 1→0).
+6. Cuenta observada 9→6; un aviso nuevo 3 al terminar.
+7. HOME durante la cuenta; nuevo NotificationRecord 4.
+8. Cancelar detuvo la cuenta; ids sin cambios: [3, 4] tras esperar más de 10 s.
+9. Activado (1) y Desactivado (2); giro entre avisos. Método: mosaico de Configuración rápida.
+10. El modo avión cambió con el switch apagado; ids sin cambios: [1, 2].
+11. Aviso guardado en historial, mensaje de error y cero notificaciones; Ajustes abre y al conceder se limpia el mensaje.
+12. En horizontal se observaron 6 s restantes; llegó el aviso 5.
+13. Select-String: 0 coincidencias; 2 receptores se retiran en onDispose; FLAG_IMMUTABLE.
+inicio. Copia de Sin_IA compilada desde cero, con instalación limpia.
+logcat_0. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+A1. Urgentes en ajustes y mImportance=4 en dumpsys. f2_01_canales_ajustes.png
+A2. Recordatorio emergente por urgentes. f2_02_recordatorio_emergente.png
+A3. Tarea lista en el canal avisos (importancia 3), sin texto emergente como ventana de SystemUI. El recordatorio sí aparece en f2_02_recordatorio_emergente.png.
+logcat_A. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+B. Notificación expandida y extra android.bigText verificado; el texto fijo es corto.
+logcat_B. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+C. Desconectado (1), Conectado tras girar (2) y sin aviso al desactivar escucha.
+logcat_C. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+D. Historial de tres orígenes tras force-stop (PID 17446→18012); ids [1, 2, 3], luego [4]→[4, 5] con am kill.
+logcat_D. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_R. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+
+Revisión adicional: Select-String devolvió 0 usos de Context en data/. Room generó SQLite con INTEGER PRIMARY KEY AUTOINCREMENT y consulta ORDER BY id DESC.
+DropBox de Android: 0 registros data_app_crash para com.correa.avisoscampus.

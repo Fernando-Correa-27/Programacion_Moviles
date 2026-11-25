@@ -15,12 +15,15 @@ com.correa.avisoscampus/
 ├── AvisosApp.kt
 ├── MainActivity.kt
 ├── data/
-│   └── AvisosRepository.kt
+│   ├── AvisosRepository.kt
+│   ├── AvisosDatabase.kt
+│   └── AvisosRepositoryRoom.kt
 ├── model/
 │   └── Modelos.kt
 ├── notificacion/
 │   └── Notificador.kt
 ├── receiver/
+│   ├── CargadorReceiver.kt
 │   └── ModoAvionReceiver.kt
 ├── ui/
 │   ├── HistorialAvisos.kt
@@ -36,9 +39,9 @@ com.correa.avisoscampus/
 ```mermaid
 flowchart LR
     Vista["PantallaAvisos"] -->|Botones e interruptor| VM["AvisosViewModel"]
-    Receiver["ModoAvionReceiver"] -->|Callback| VM
+    Receiver["ModoAvionReceiver y CargadorReceiver"] -->|Callback| VM
     VM -->|Registra| Repo["AvisosRepository"]
-    Repo --> Memoria["AvisosRepositoryMemoria"]
+    Repo --> Persistencia["AvisosRepositoryRoom"]
     VM -->|StateFlow de estado e historial| Vista
     VM -->|SharedFlow de eventos Aviso| Vista
     Vista -->|Context y Aviso| Notificador
@@ -108,3 +111,44 @@ El receptor del laboratorio lee el estado del anuncio y lo delega al ViewModel m
 Una notificación local sirve para hechos que el teléfono puede detectar o calcular, como un recordatorio de 10 segundos o el modo avión.
 Una push de Firebase Cloud Messaging sirve para eventos que se originan en un servidor, como un cambio en la fecha de entrega.
 El laboratorio produjo sus avisos en el emulador. Una integración con FCM requeriría un emisor y conectividad.
+
+## Fase 2 — Mejoras con IA
+
+La base y las evidencias de la Fase 1 provienen de la rama `Sin_IA` del repositorio general. Los diez commits de esa fase se encuentran en `Sin_IA`. Consulta el [registro de IA](PROMPTS.md) y el [registro de verificaciones de la Fase 2](docs/capturas/verificacion_f2.txt).
+
+| Mejora | Capas | Comportamiento verificado |
+| --- | --- | --- |
+| Canales Avisos y Urgentes | Modelo y Notificador | El modelo asigna el recordatorio a Urgentes. La importancia alta permite un emergente. El botón y los demás orígenes usan Avisos. |
+| Texto expandido | Notificador | `BigTextStyle` proporciona el texto completo en la vista expandida. `dumpsys` contiene `android.bigText`. La diferencia visual es pequeña con el texto corto de la guía. |
+| Receptor del cargador | Receiver, modelo, ViewModel y UI | Su interruptor registra un filtro para conexión y desconexión. El receptor emite por callback y el ViewModel registra el aviso. |
+| Historial persistente | Repository, ViewModel y aplicación | Room asigna ids autoincrementales y recupera las filas en orden descendente. El ViewModel escribe en IO antes de emitir el aviso. |
+
+### Capturas de la fase 2
+
+| Inicio | Canales en Ajustes |
+| --- | --- |
+| ![Inicio de la copia limpia](docs/capturas/f2_00_inicio.png) | ![Canales Avisos y Urgentes](docs/capturas/f2_01_canales_ajustes.png) |
+| **Recordatorio emergente** | **Notificación expandida** |
+| ![Emergente Recordatorio](docs/capturas/f2_02_recordatorio_emergente.png) | ![Texto expandido](docs/capturas/f2_03_texto_largo_expandido.png) |
+| **Interruptor del cargador** | **Aviso del cargador** |
+| ![Interruptor del cargador](docs/capturas/f2_04_cargador_switch.png) | ![Aviso del cargador](docs/capturas/f2_05_cargador_aviso.png) |
+| **Historial tras reiniciar el proceso** | **Pantalla final** |
+| ![Historial persistente](docs/capturas/f2_06_historial_persistente.png) | ![Pantalla final](docs/capturas/f2_07_pantalla_final.png) |
+
+### Regresión
+
+| N.º | Prueba | Resultado | Observación |
+| --- | --- | --- | --- |
+| 1 | Canal Avisos | ✅ | Canal Avisos en ajustes y mImportance=3 en dumpsys. |
+| 2 | Cuadro de permiso y etiquetas | ✅ | Instalación limpia, diálogo real y etiqueta Permitido; denegación en prueba 11. |
+| 3 | Mostrar aviso | ✅ | Tarea lista visible, id 1. |
+| 4 | Dos avisos con ids distintos | ✅ | Dos NotificationRecord activos con ids [1, 2]. |
+| 5 | Abrir y autocancelar al tocar | ✅ | MainActivity abierta y autocancelada con HOME y con HOME + am kill (1→0, 1→0). |
+| 6 | Cuenta regresiva y aviso | ✅ | Cuenta observada 9→6; un aviso nuevo 3 al terminar. |
+| 7 | Recordatorio al minimizar | ✅ | HOME durante la cuenta; nuevo NotificationRecord 4. |
+| 8 | Cancelar el recordatorio | ✅ | Cancelar detuvo la cuenta; ids sin cambios: [3, 4] tras esperar más de 10 s. |
+| 9 | Modo avión activado y desactivado | ✅ | Activado (1) y Desactivado (2); giro entre avisos. Método: mosaico de Configuración rápida. |
+| 10 | Interruptor apagado | ✅ | El modo avión cambió con el switch apagado; ids sin cambios: [1, 2]. |
+| 11 | Permiso denegado e historial | ✅ | Aviso guardado en historial, mensaje de error y cero notificaciones; Ajustes abre y al conceder se limpia el mensaje. |
+| 12 | Rotación durante la cuenta | ✅ | En horizontal se observaron 6 s restantes; llegó el aviso 5. |
+| 13 | MVVM y retiro del receptor | ✅ | Select-String: 0 coincidencias; 2 receptores se retiran en onDispose; FLAG_IMMUTABLE. |
