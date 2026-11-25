@@ -1,0 +1,110 @@
+# AvisosCampus
+
+AvisosCampus es una app Android del laboratorio de la semana 15 de Programación en Móviles. Usa Kotlin, Jetpack Compose y Material 3. Publica avisos locales, permite iniciar o cancelar un recordatorio de 10 segundos y escucha los cambios del modo avión cuando se activa el interruptor. El historial muestra los 20 avisos más recientes.
+
+## Ejecutar el proyecto
+
+1. Abre esta carpeta en Android Studio y selecciona el SDK instalado. El proyecto usa minSdk 24 y API 37.0 para compilar. El targetSdk es 37.
+2. Arranca un dispositivo Android 13 o superior para probar el permiso de notificaciones.
+3. Compila con `.\gradlew.bat :app:assembleDebug` o ejecuta la configuración **app**. En AvisosCampus toca **Permitir notificaciones**.
+
+## Paquetes
+
+```text
+com.correa.avisoscampus/
+├── AvisosApp.kt
+├── MainActivity.kt
+├── data/
+│   └── AvisosRepository.kt
+├── model/
+│   └── Modelos.kt
+├── notificacion/
+│   └── Notificador.kt
+├── receiver/
+│   └── ModoAvionReceiver.kt
+├── ui/
+│   ├── HistorialAvisos.kt
+│   ├── PantallaAvisos.kt
+│   └── theme/
+└── viewmodel/
+    ├── AvisosViewModel.kt
+    └── AvisosViewModelFactory.kt
+```
+
+## Arquitectura MVVM
+
+```mermaid
+flowchart LR
+    Vista["PantallaAvisos"] -->|Botones e interruptor| VM["AvisosViewModel"]
+    Receiver["ModoAvionReceiver"] -->|Callback| VM
+    VM -->|Registra| Repo["AvisosRepository"]
+    Repo --> Memoria["AvisosRepositoryMemoria"]
+    VM -->|StateFlow de estado e historial| Vista
+    VM -->|SharedFlow de eventos Aviso| Vista
+    Vista -->|Context y Aviso| Notificador
+    Notificador --> Android
+```
+
+La pantalla conserva la colección de eventos al minimizarse para que el recordatorio pueda publicar mientras la actividad sigue viva. El ViewModel conserva el cronómetro y el historial en una rotación. La pantalla registra el receptor cuando se activa el interruptor y lo retira en `onDispose`.
+
+## Capturas de la fase 1
+
+| Notificación en el panel | Cuenta regresiva |
+| --- | --- |
+| ![Aviso Tarea lista en el panel](docs/capturas/f1_04_notificacion_panel.png) | ![Cuenta regresiva activa](docs/capturas/f1_07_recordatorio_cuenta.png) |
+| **Aviso del modo avión** | **Historial de varios orígenes** |
+| ![Aviso de modo avión](docs/capturas/f1_10_modo_avion_aviso.png) | ![Historial de avisos](docs/capturas/f1_11_historial.png) |
+| **Permiso denegado** | |
+| ![Mensaje de permiso denegado](docs/capturas/f1_12_permiso_denegado.png) | |
+
+## Pruebas de aceptación
+
+Emulador visible `Medium_Phone_API_37.0`, API 37. Las capturas corresponden al APK de cada paso. El [registro de verificaciones](docs/capturas/verificacion_f1.txt) recoge las comprobaciones de ADB, la revisión de arquitectura y la repetición de las 13 pruebas con el APK final.
+
+| N.º | Prueba | Resultado | Evidencia |
+| --- | --- | --- | --- |
+| 1 | Canal Avisos | ✅ | [Canal en la lista](docs/capturas/f1_01b_canal_lista.png), [detalle del canal](docs/capturas/f1_01_canal_avisos.png) y ADB |
+| 2 | Cuadro de permiso y etiquetas | ✅ | [Cuadro](docs/capturas/f1_02_permiso_dialogo.png), [Permitido](docs/capturas/f1_03_permiso_permitido.png), [Denegado](docs/capturas/f1_03b_permiso_denegado_etiqueta.png) |
+| 3 | Mostrar aviso | ✅ | [Tarea lista](docs/capturas/f1_04_notificacion_panel.png) |
+| 4 | Dos avisos con ids distintos | ✅ | [Dos registros](docs/capturas/f1_05_dos_notificaciones.png) y ADB |
+| 5 | Abrir y autocancelar al tocar | ✅ | [App abierta](docs/capturas/f1_06_notificacion_abre_app.png) y ADB |
+| 6 | Cuenta regresiva y aviso | ✅ | [Cuenta](docs/capturas/f1_07_recordatorio_cuenta.png), [aviso](docs/capturas/f1_08_recordatorio_notificacion.png) |
+| 7 | Recordatorio al minimizar | ✅ | ADB |
+| 8 | Cancelar el recordatorio | ✅ | ADB |
+| 9 | Modo avión activado y desactivado | ✅ | [Interruptor](docs/capturas/f1_09_modo_avion_switch.png), [aviso](docs/capturas/f1_10_modo_avion_aviso.png) y ADB |
+| 10 | Interruptor apagado | ✅ | ADB |
+| 11 | Permiso denegado e historial | ✅ | [Mensaje](docs/capturas/f1_12_permiso_denegado.png), [Ajustes](docs/capturas/f1_13_abrir_ajustes.png) y ADB |
+| 12 | Rotación durante la cuenta | ✅ | ADB |
+| 13 | MVVM y retiro del receptor | ✅ | Select-String y revisión de registro |
+
+## Para pensar
+
+### ¿Para qué necesita canal y permiso una notificación?
+
+El canal agrupa los avisos y permite que el usuario controle su importancia y comportamiento desde Android 8.
+Si la app apunta a Android 8 o superior y publica hacia un canal inexistente, el sistema descarta ese aviso.
+El permiso de Android 13 habilita la publicación para la aplicación. Al denegarlo, el aviso de prueba quedó en el historial y el panel se mantuvo vacío.
+
+### ¿Por qué el ViewModel emite un evento?
+
+El ViewModel decide el título, el texto y el origen, guarda el aviso y emite un evento de una sola vez.
+La pantalla lo recoge y entrega su `Context` a `Notificador`, que controla la API de Android.
+Así se puede probar el ViewModel con un repositorio de prueba y se conserva el mismo modelo al rotar la actividad.
+
+### ¿Qué ocurre si se reutiliza el id?
+
+Android identifica cada notificación activa por la aplicación, la etiqueta opcional y el id.
+Volver a publicar con la misma combinación actualiza la notificación activa correspondiente.
+En el emulador, dos pulsaciones produjeron dos registros activos porque el repositorio asignó ids distintos.
+
+### ¿Por qué debe ser corto `onReceive` y cuándo se retira el receptor?
+
+Un receptor dinámico ejecuta `onReceive` en el hilo principal por defecto. Una operación larga puede bloquear la interfaz o provocar un ANR.
+El receptor del laboratorio lee el estado del anuncio y lo delega al ViewModel mediante un callback.
+`onDispose` lo retira al desactivar la escucha o al salir de composición, para liberar el registro y evitar callbacks duplicados al recrear la pantalla.
+
+### ¿Cuándo usar una notificación local o una push de Firebase?
+
+Una notificación local sirve para hechos que el teléfono puede detectar o calcular, como un recordatorio de 10 segundos o el modo avión.
+Una push de Firebase Cloud Messaging sirve para eventos que se originan en un servidor, como un cambio en la fecha de entrega.
+El laboratorio produjo sus avisos en el emulador. Una integración con FCM requeriría un emisor y conectividad.
