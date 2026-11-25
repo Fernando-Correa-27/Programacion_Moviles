@@ -8,6 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -41,10 +43,11 @@ import com.correa.avisoscampus.viewmodel.AvisosViewModel
 
 private val AzulBarra = Color(0xFF174475)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val faltan by vm.faltan.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val solicitarPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -92,8 +95,15 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
             }
             TarjetaAvisos("Recordatorio") {
-                Button(onClick = {}, enabled = false) { Text("Recordar en 10 s") }
-                OutlinedButton(onClick = {}, enabled = false) { Text("Cancelar") }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { vm.recordarEn() }, enabled = faltan == null) {
+                        Text("Recordar en 10 s")
+                    }
+                    OutlinedButton(onClick = vm::cancelarRecordatorio, enabled = faltan != null) {
+                        Text("Cancelar")
+                    }
+                }
+                faltan?.let { Text("Faltan $it s") }
             }
             TarjetaAvisos("Receptor de anuncios") {
                 Text("Escuchar el modo avión")

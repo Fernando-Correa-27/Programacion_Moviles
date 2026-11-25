@@ -6,6 +6,8 @@ import com.correa.avisoscampus.data.AvisosRepository
 import com.correa.avisoscampus.model.Aviso
 import com.correa.avisoscampus.model.Origen
 import com.correa.avisoscampus.model.PermisoUi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -31,8 +33,31 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
     }
 
+    private val _faltan = MutableStateFlow<Int?>(null)
+    val faltan: StateFlow<Int?> = _faltan.asStateFlow()
+    private var recordatorio: Job? = null
+
     fun avisarAhora() {
         registrarAviso("Tarea lista", "Tu entrega fue registrada", Origen.BOTON)
+    }
+
+    fun recordarEn(segundos: Int = 10) {
+        if (recordatorio?.isActive == true) return
+        recordatorio = viewModelScope.launch {
+            try {
+                for (restantes in segundos downTo 1) {
+                    _faltan.value = restantes
+                    delay(1000)
+                }
+                registrarAviso("Recordatorio", "Revisa tu laboratorio pendiente", Origen.RECORDATORIO)
+            } finally {
+                _faltan.value = null
+            }
+        }
+    }
+
+    fun cancelarRecordatorio() {
+        recordatorio?.cancel()
     }
 
     private fun registrarAviso(titulo: String, texto: String, origen: Origen) {
