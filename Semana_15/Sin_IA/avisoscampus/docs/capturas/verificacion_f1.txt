@@ -1,0 +1,44 @@
+AvisosCampus — Fase 1
+Emulador Medium_Phone_API_37.0 (API 37).
+
+Verificación de cada paso
+1. Canal Avisos en ajustes y mImportance=3 en dumpsys. f1_01b_canal_lista.png
+2. Instalaciones limpias; cuadro de Android y etiquetas Permitido / Denegado.
+3. Tarea lista visible, id 1. f1_04_notificacion_panel.png.
+4. Dos NotificationRecord activos con ids [1, 2]. f1_05_dos_notificaciones.png.
+5. MainActivity abierta y autocancelada con HOME y con HOME + am kill (1→0, 1→0). f1_06_notificacion_abre_app.png
+6. Cuenta observada 9→5; un aviso nuevo 1 al terminar. f1_08_recordatorio_notificacion.png
+7. HOME durante la cuenta; nuevo NotificationRecord 2.
+8. Cancelar detuvo la cuenta; ids sin cambios: [1, 2] tras esperar más de 10 s.
+9. Activado (1) y Desactivado (2); giro entre avisos. Método: mosaico de Configuración rápida.
+10. El modo avión cambió con el switch apagado; ids sin cambios: [1, 2].
+11. Aviso guardado en historial, mensaje de error y cero notificaciones; Ajustes abre y al conceder se limpia el mensaje.
+12. En horizontal se observaron 5 s restantes; llegó el aviso 3.
+13. Select-String: 0 coincidencias; 1 receptores se retiran en onDispose; FLAG_IMMUTABLE.
+base. APK base instalado, con las cinco tarjetas de la guía.
+logcat_0. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_1. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_2. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_3. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_4. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_5. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_6. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+historial. Tres orígenes y horas en orden descendente (19:53:55, 19:53:51, 19:53:43, 19:53:31); historial conservado al rotar.
+logcat_7. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+logcat_8. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
+
+Repetición con el APK final
+1. Canal Avisos en ajustes y mImportance=3 en dumpsys.
+2. Instalación limpia, diálogo real y etiqueta Permitido; denegación en prueba 11.
+3. Tarea lista visible, id 1.
+4. Dos NotificationRecord activos con ids [1, 2].
+5. MainActivity abierta y autocancelada con HOME y con HOME + am kill (1→0, 1→0).
+6. Cuenta observada 9→6; un aviso nuevo 1 al terminar.
+7. HOME durante la cuenta; nuevo NotificationRecord 2.
+8. Cancelar detuvo la cuenta; ids sin cambios: [1, 2] tras esperar más de 10 s.
+9. Activado (1) y Desactivado (2); giro entre avisos. Método: mosaico de Configuración rápida.
+10. El modo avión cambió con el switch apagado; ids sin cambios: [1, 2].
+11. Aviso guardado en historial, mensaje de error y cero notificaciones; Ajustes abre y al conceder se limpia el mensaje.
+12. En horizontal se observaron 5 s restantes; llegó el aviso 3.
+13. Select-String: 0 coincidencias; 1 receptores se retiran en onDispose; FLAG_IMMUTABLE.
+logcat_R. Sin FATAL EXCEPTION en AndroidRuntime durante este paso.
