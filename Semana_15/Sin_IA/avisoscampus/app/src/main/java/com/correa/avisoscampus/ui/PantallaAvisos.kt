@@ -56,6 +56,7 @@ private val AzulBarra = Color(0xFF174475)
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val avisos by vm.avisos.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val permiso by vm.permiso.collectAsState()
@@ -133,9 +134,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             TarjetaAvisos("Receptor de anuncios") {
                 InterruptorEscucha("Escuchar el modo avión", escuchando, vm::cambiarEscucha)
             }
-            TarjetaAvisos("Historial") {
-                Text("Sin avisos todavía")
-            }
+            HistorialAvisos(avisos)
         }
     }
 }
