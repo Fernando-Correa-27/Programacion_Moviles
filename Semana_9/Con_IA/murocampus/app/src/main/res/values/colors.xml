@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="verde_campus">#FF1F5C4A</color>
+    <color name="verde_menta">#FF8FD8C3</color>
+    <color name="fondo_claro">#FFF7FAF8</color>
+    <color name="fondo_oscuro">#FF0E1512</color>
+    <color name="superficie_clara">#FFFFFFFF</color>
+    <color name="superficie_oscura">#FF151D19</color>
+</resources>
