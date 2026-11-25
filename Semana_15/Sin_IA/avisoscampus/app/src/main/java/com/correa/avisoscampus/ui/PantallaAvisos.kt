@@ -1,6 +1,8 @@
 package com.correa.avisoscampus.ui
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,11 +12,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -28,17 +32,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.correa.avisoscampus.model.PermisoUi
 import com.correa.avisoscampus.notificacion.Notificador
+import com.correa.avisoscampus.receiver.ModoAvionReceiver
 import com.correa.avisoscampus.viewmodel.AvisosViewModel
 
 private val AzulBarra = Color(0xFF174475)
@@ -47,6 +56,7 @@ private val AzulBarra = Color(0xFF174475)
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val escuchando by vm.escuchandoAvion.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val solicitarPermiso = rememberLauncherForActivityResult(
@@ -59,6 +69,21 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(vm) {
         vm.eventos.collect { aviso ->
             Notificador.mostrar(contexto, aviso)
+        }
+    }
+
+    DisposableEffect(contexto, escuchando) {
+        val receptor = if (escuchando) ModoAvionReceiver(vm::alCambiarModoAvion) else null
+        if (receptor != null) {
+            ContextCompat.registerReceiver(
+                contexto,
+                receptor,
+                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        }
+        onDispose {
+            if (receptor != null) contexto.unregisterReceiver(receptor)
         }
     }
 
@@ -106,8 +131,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 faltan?.let { Text("Faltan $it s") }
             }
             TarjetaAvisos("Receptor de anuncios") {
-                Text("Escuchar el modo avión")
-                Switch(checked = false, onCheckedChange = null, enabled = false)
+                InterruptorEscucha("Escuchar el modo avión", escuchando, vm::cambiarEscucha)
             }
             TarjetaAvisos("Historial") {
                 Text("Sin avisos todavía")
@@ -156,4 +180,16 @@ private fun EtiquetaPermiso(permiso: PermisoUi) {
         style = MaterialTheme.typography.labelMedium,
         color = tinta
     )
+}
+
+@Composable
+private fun InterruptorEscucha(texto: String, activo: Boolean, cambiar: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().toggleable(activo, role = Role.Switch, onValueChange = cambiar),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(texto, modifier = Modifier.weight(1f))
+        Switch(checked = activo, onCheckedChange = null)
+    }
 }
