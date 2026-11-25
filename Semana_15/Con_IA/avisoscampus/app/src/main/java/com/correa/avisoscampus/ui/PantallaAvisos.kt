@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.correa.avisoscampus.model.PermisoUi
 import com.correa.avisoscampus.notificacion.Notificador
+import com.correa.avisoscampus.receiver.CargadorReceiver
 import com.correa.avisoscampus.receiver.ModoAvionReceiver
 import com.correa.avisoscampus.viewmodel.AvisosViewModel
 
@@ -59,6 +60,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val avisos by vm.avisos.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val escuchandoCargador by vm.escuchandoCargador.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val permiso by vm.permiso.collectAsState()
@@ -83,6 +85,21 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 receptor,
                 IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
                 ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        }
+        onDispose {
+            if (receptor != null) contexto.unregisterReceiver(receptor)
+        }
+    }
+
+    DisposableEffect(contexto, escuchandoCargador) {
+        val receptor = if (escuchandoCargador) CargadorReceiver(vm::alCambiarCargador) else null
+        if (receptor != null) {
+            val filtro = IntentFilter(Intent.ACTION_POWER_CONNECTED).apply {
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+            }
+            ContextCompat.registerReceiver(
+                contexto, receptor, filtro, ContextCompat.RECEIVER_NOT_EXPORTED
             )
         }
         onDispose {
@@ -151,6 +168,9 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
             TarjetaAvisos("Receptor de anuncios") {
                 InterruptorEscucha("Escuchar el modo avión", escuchando, vm::cambiarEscucha)
+                InterruptorEscucha(
+                    "Escuchar el cargador", escuchandoCargador, vm::cambiarEscuchaCargador
+                )
             }
             HistorialAvisos(avisos)
         }
