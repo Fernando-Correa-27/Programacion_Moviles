@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tecsup.mibodega.ExampleUnitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-03T07:41:57.214Z" hostname="LESTER" time="0.001">
+  <properties/>
+  <testcase name="addition_isCorrect" classname="com.tecsup.mibodega.ExampleUnitTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

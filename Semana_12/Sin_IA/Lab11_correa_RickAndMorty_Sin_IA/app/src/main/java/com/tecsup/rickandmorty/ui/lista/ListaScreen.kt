@@ -49,7 +49,10 @@ fun ListaScreen(
                 UiState.Cargando -> Cargando(Modifier.padding(20.dp))
                 is UiState.Error -> ErrorView(estado.mensaje, alReintentar)
                 is UiState.Exito -> if (estado.datos.isEmpty()) {
-                    Text("No hay personajes guardados. Sincroniza cuando tengas conexión.", Modifier.padding(24.dp))
+                    Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text("No hay personajes guardados. Sincroniza cuando tengas conexión.")
+                        Button(onClick = alReintentar) { Text("Sincronizar") }
+                    }
                 } else LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(estado.datos, key = { it.id }) { item ->
                         ItemCard(item, { alDetalle(item.id) }, { alFavorito(item.id) })

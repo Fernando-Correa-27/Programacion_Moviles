@@ -16,6 +16,7 @@ lifecycle = "2.11.0"
 navigation = "2.9.7"
 firebaseBom = "34.0.0"
 coroutinesPlayServices = "1.10.2"
+coroutinesTest = "1.10.2"
 coil = "3.6.3"
 ksp = "2.3.10"
 googleServices = "4.4.4"
@@ -51,6 +52,7 @@ firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.r
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 

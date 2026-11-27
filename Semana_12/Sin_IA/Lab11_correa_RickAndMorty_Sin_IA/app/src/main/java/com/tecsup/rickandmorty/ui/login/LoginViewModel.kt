@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.tecsup.rickandmorty.data.auth.AuthRepository
 import com.tecsup.rickandmorty.domain.model.Sesion
 import com.tecsup.rickandmorty.ui.UiState
@@ -46,10 +48,17 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         _uiState.value = UiState.Exito(null)
     }
 
-    private fun mensajeError(error: Throwable, leyendoSesion: Boolean = false): String = when {
-        error is IOException -> "No hay conexión a internet. Revisa tu conexión e inténtalo de nuevo."
-        error is FirebaseAuthInvalidCredentialsException || error is FirebaseAuthInvalidUserException -> "El correo o la contraseña son incorrectos."
+    private fun mensajeError(error: Throwable, leyendoSesion: Boolean = false): String {
+        val causas = generateSequence(error) { it.cause }.toList()
+        return when {
+        causas.any { it is IOException || it is FirebaseNetworkException ||
+            (it is FirebaseFirestoreException && it.code in setOf(
+                FirebaseFirestoreException.Code.UNAVAILABLE,
+                FirebaseFirestoreException.Code.DEADLINE_EXCEEDED
+            )) } -> "No hay conexión a internet. Revisa tu conexión e inténtalo de nuevo."
+        causas.any { it is FirebaseAuthInvalidCredentialsException || it is FirebaseAuthInvalidUserException } -> "El correo o la contraseña son incorrectos."
         leyendoSesion -> "No se pudo verificar tu sesión. Comprueba tu conexión e inténtalo de nuevo."
         else -> "No se pudo iniciar sesión. Verifica tus datos e inténtalo de nuevo."
+        }
     }
 }

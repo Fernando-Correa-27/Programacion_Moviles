@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 fun Cargando(modifier: Modifier = Modifier, mensaje: String = "Cargando personajes…") {
     Column(modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         CircularProgressIndicator()
-        Text(mensaje)
+        Text(mensaje, style = MaterialTheme.typography.titleMedium)
+        Text("La lista se guarda en este dispositivo para consultarla después.", style = MaterialTheme.typography.bodyMedium)
     }
 }
